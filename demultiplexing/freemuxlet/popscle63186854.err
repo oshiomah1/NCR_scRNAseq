@@ -1,0 +1,645 @@
+[popscle dsc-pileup] -- Produce pileup of dsc-RNAseq
+
+ Copyright (c) 2009-2019 by Hyun Min Kang and Fan Zhang
+ Licensed under the Apache License v2.0 http://www.apache.org/licenses/
+
+Available Options
+
+The following parameters are available. Ones with "[]" are in effect:
+           Options for input SAM/BAM/CRAM : --sam [/share/hennlab/projects/NCR_scRNAseq/results/TEStmulti_analysis_GEX2_CSF/outs/per_sample_outs/TEStmulti_analysis_GEX2_CSF/count/sample_alignments.bam],
+                                            --tag-group [CB], --tag-UMI [UB]
+                Options for input VCF/BCF : --vcf [/share/hennlab/projects/NCR_scRNAseq/results/demultiplex/freemuxlet/new/Nama_5pct_snps_in_genes.sorted.header.sorted.sequence_AF.vcf],
+                                            --sm, --sm-list
+                           Output Options : --out [/share/hennlab/projects/NCR_scRNAseq/results/demultiplex/dscpileup/tbss01_04],
+                                            --sam-verbose [1000000],
+                                            --vcf-verbose [10000], --skip-umi
+   SNP-overlapping Read filtering Options : --cap-BQ [40], --min-BQ [13],
+                                            --min-MQ [20], --min-TD,
+                                            --excl-flag [3844]
+           Cell/droplet filtering options : --group-list, --min-total,
+                                            --min-uniq, --min-snp
+
+Run with --help for more detailed help messages of each argument.
+
+NOTICE [2024/10/21 20:18:36] - Initializing BCF reader..
+NOTICE [2024/10/21 20:18:36] - Finished identifying 51 samples to load from VCF/BCF
+NOTICE [2024/10/21 20:18:36] - Initializing SAM reader..
+NOTICE [2024/10/21 20:18:36] - Reading 0 reads at chr1:1 and skipping 0
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 9786-th read LH00572:101:22FVKNLT4:3:1373:7830:23861 at chr1:15825-15915. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 9787-th read LH00572:101:22FVKNLT4:3:2373:22582:10063 at chr1:15825-15915. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 10808-th read LH00572:101:22FVKNLT4:7:2153:21465:24351 at chr1:16230-16320. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 93022-th read LH00572:101:22FVKNLT4:7:2257:5354:27054 at chr1:29176-189733. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 93026-th read LH00572:101:22FVKNLT4:7:2143:45904:6701 at chr1:29176-189733. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 97452-th read LH00572:101:22FVKNLT4:7:2246:36978:10329 at chr1:29828-200444. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 97741-th read LH00572:101:22FVKNLT4:7:2358:17953:5468 at chr1:62919-63009. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 101859-th read LH00572:101:22FVKNLT4:7:2372:35619:1112 at chr1:133391-133481. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 102232-th read LH00572:101:22FVKNLT4:7:2244:44480:29338 at chr1:134928-135018. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Cannot find UMI tag UB from 103412-th read LH00572:101:22FVKNLT4:4:2256:42100:20289 at chr1:134974-135064. Treating all of them as a single UMI
+NOTICE [2024/10/21 20:18:36] - WARNING: Suppressing 10+ UMI warnings...
+NOTICE [2024/10/21 20:43:03] - Reading 2000000 reads at chr1:632285 and skipping 602624
+NOTICE [2024/10/21 20:52:29] - Reading 3000000 reads at chr1:633681 and skipping 1075174
+NOTICE [2024/10/21 21:10:13] - Reading 4000000 reads at chr1:633742 and skipping 1087651
+NOTICE [2024/10/21 21:27:34] - Reading 5000000 reads at chr1:633786 and skipping 1108792
+NOTICE [2024/10/21 21:43:46] - Reading 6000000 reads at chr1:633966 and skipping 1195827
+NOTICE [2024/10/21 22:01:32] - Reading 7000000 reads at chr1:634022 and skipping 1196401
+NOTICE [2024/10/21 22:22:30] - Reading 11000000 reads at chr1:1787362 and skipping 4077479
+NOTICE [2024/10/21 22:28:33] - Reading 12000000 reads at chr1:2395840 and skipping 4737344
+NOTICE [2024/10/21 22:31:23] - Reading 13000000 reads at chr1:3796213 and skipping 5446203
+NOTICE [2024/10/21 22:31:53] - Reading 10000 variants at chr1:4680973, Skipping 0, Missing 0.
+NOTICE [2024/10/21 22:47:32] - Reading 17000000 reads at chr1:6192935 and skipping 8601329
+NOTICE [2024/10/21 23:03:50] - Reading 20000000 reads at chr1:6602501 and skipping 10780048
+NOTICE [2024/10/21 23:08:50] - Reading 20000 variants at chr1:9184987, Skipping 0, Missing 0.
+NOTICE [2024/10/21 23:16:32] - Reading 23000000 reads at chr1:9729221 and skipping 12969079
+NOTICE [2024/10/21 23:23:48] - Reading 25000000 reads at chr1:11664594 and skipping 14329085
+NOTICE [2024/10/21 23:30:40] - Reading 30000 variants at chr1:14457824, Skipping 0, Missing 0.
+NOTICE [2024/10/21 23:46:56] - Reading 40000 variants at chr1:18183182, Skipping 0, Missing 0.
+NOTICE [2024/10/22 00:08:39] - Reading 37000000 reads at chr1:22078557 and skipping 22795882
+NOTICE [2024/10/22 00:10:28] - Reading 50000 variants at chr1:22958926, Skipping 0, Missing 0.
+NOTICE [2024/10/22 00:22:40] - Reading 43000000 reads at chr1:23692686 and skipping 27479034
+NOTICE [2024/10/22 00:30:57] - Reading 45000000 reads at chr1:23692713 and skipping 29101429
+NOTICE [2024/10/22 00:43:00] - Reading 48000000 reads at chr1:23692747 and skipping 31552349
+NOTICE [2024/10/22 00:49:28] - Reading 50000000 reads at chr1:23693809 and skipping 33241721
+NOTICE [2024/10/22 00:59:25] - Reading 53000000 reads at chr1:23693835 and skipping 35752630
+NOTICE [2024/10/22 01:03:05] - Reading 54000000 reads at chr1:23693844 and skipping 36583903
+NOTICE [2024/10/22 01:22:53] - Reading 60000000 reads at chr1:23693907 and skipping 41671048
+NOTICE [2024/10/22 01:37:50] - Reading 65000000 reads at chr1:23960942 and skipping 45926385
+NOTICE [2024/10/22 01:43:48] - Reading 67000000 reads at chr1:24646069 and skipping 47384463
+NOTICE [2024/10/22 01:45:35] - Reading 68000000 reads at chr1:24648920 and skipping 48195237
+NOTICE [2024/10/22 02:25:47] - Reading 88000000 reads at chr1:27659299 and skipping 63768421
+NOTICE [2024/10/22 02:29:45] - Reading 60000 variants at chr1:28697270, Skipping 0, Missing 0.
+NOTICE [2024/10/22 02:35:26] - Reading 91000000 reads at chr1:28508996 and skipping 65965234
+NOTICE [2024/10/22 02:43:19] - Reading 94000000 reads at chr1:30733566 and skipping 67958608
+NOTICE [2024/10/22 02:57:51] - Reading 99000000 reads at chr1:31938111 and skipping 71450810
+NOTICE [2024/10/22 03:16:16] - Reading 103000000 reads at chr1:33127675 and skipping 74258577
+NOTICE [2024/10/22 03:17:03] - Reading 70000 variants at chr1:35278452, Skipping 0, Missing 0.
+NOTICE [2024/10/22 03:23:04] - Reading 105000000 reads at chr1:35420647 and skipping 75553501
+NOTICE [2024/10/22 03:33:31] - Reading 109000000 reads at chr1:37984749 and skipping 78383976
+NOTICE [2024/10/22 03:39:53] - Reading 111000000 reads at chr1:39561723 and skipping 79821270
+NOTICE [2024/10/22 03:48:19] - Reading 80000 variants at chr1:41307786, Skipping 0, Missing 0.
+NOTICE [2024/10/22 03:59:05] - Reading 116000000 reads at chr1:42682593 and skipping 83192555
+NOTICE [2024/10/22 04:10:57] - Reading 118000000 reads at chr1:42816435 and skipping 84526826
+NOTICE [2024/10/22 04:19:50] - Reading 121000000 reads at chr1:44776057 and skipping 86733968
+NOTICE [2024/10/22 04:54:31] - Reading 133000000 reads at chr1:44776745 and skipping 96241790
+NOTICE [2024/10/22 05:08:58] - Reading 138000000 reads at chr1:44777640 and skipping 100296966
+NOTICE [2024/10/22 05:14:06] - Reading 140000000 reads at chr1:44777679 and skipping 101942917
+NOTICE [2024/10/22 05:29:06] - Reading 90000 variants at chr1:46115036, Skipping 0, Missing 0.
+NOTICE [2024/10/22 05:41:34] - Reading 148000000 reads at chr1:51447289 and skipping 107777359
+NOTICE [2024/10/22 05:45:28] - Reading 100000 variants at chr1:52284164, Skipping 0, Missing 0.
+NOTICE [2024/10/22 05:58:47] - Reading 153000000 reads at chr1:54405959 and skipping 111331376
+NOTICE [2024/10/22 06:02:40] - Reading 110000 variants at chr1:55963560, Skipping 0, Missing 0.
+NOTICE [2024/10/22 06:03:06] - Reading 120000 variants at chr1:59081983, Skipping 0, Missing 0.
+NOTICE [2024/10/22 06:18:52] - Reading 155000000 reads at chr1:58783656 and skipping 112642515
+NOTICE [2024/10/22 06:43:25] - Reading 158000000 reads at chr1:62648532 and skipping 114897869
+NOTICE [2024/10/22 06:43:30] - Reading 130000 variants at chr1:63600407, Skipping 0, Missing 0.
+NOTICE [2024/10/22 06:45:30] - Reading 159000000 reads at chr1:64883449 and skipping 115613864
+NOTICE [2024/10/22 06:50:09] - Reading 161000000 reads at chr1:66946176 and skipping 116964419
+NOTICE [2024/10/22 06:54:24] - Reading 140000 variants at chr1:68165673, Skipping 0, Missing 0.
+NOTICE [2024/10/22 06:56:21] - Reading 164000000 reads at chr1:70274741 and skipping 119139674
+NOTICE [2024/10/22 06:57:23] - Reading 150000 variants at chr1:73796076, Skipping 0, Missing 0.
+NOTICE [2024/10/22 07:01:24] - Reading 160000 variants at chr1:78366735, Skipping 0, Missing 0.
+NOTICE [2024/10/22 07:03:20] - Reading 170000 variants at chr1:84179844, Skipping 0, Missing 0.
+NOTICE [2024/10/22 07:03:26] - Reading 167000000 reads at chr1:84144446 and skipping 121176475
+NOTICE [2024/10/22 07:07:21] - Reading 169000000 reads at chr1:85266471 and skipping 122683127
+NOTICE [2024/10/22 07:09:20] - Reading 170000000 reads at chr1:86863266 and skipping 123357641
+NOTICE [2024/10/22 07:10:33] - Reading 180000 variants at chr1:88733231, Skipping 0, Missing 0.
+NOTICE [2024/10/22 07:11:15] - Reading 171000000 reads at chr1:88793500 and skipping 124109047
+NOTICE [2024/10/22 07:14:10] - Reading 172000000 reads at chr1:89107993 and skipping 124765487
+NOTICE [2024/10/22 07:18:30] - Reading 173000000 reads at chr1:89546481 and skipping 125417382
+NOTICE [2024/10/22 07:43:30] - Reading 186000000 reads at chr1:92834806 and skipping 135627884
+NOTICE [2024/10/22 07:55:07] - Reading 189000000 reads at chr1:93079325 and skipping 137695361
+NOTICE [2024/10/22 07:58:46] - Reading 190000000 reads at chr1:93363476 and skipping 138384777
+NOTICE [2024/10/22 08:01:08] - Reading 190000 variants at chr1:94683150, Skipping 0, Missing 0.
+NOTICE [2024/10/22 08:03:37] - Reading 192000000 reads at chr1:97773366 and skipping 139736329
+NOTICE [2024/10/22 08:05:44] - Reading 200000 variants at chr1:100506021, Skipping 0, Missing 0.
+NOTICE [2024/10/22 08:12:09] - Reading 210000 variants at chr1:108827175, Skipping 0, Missing 0.
+NOTICE [2024/10/22 08:12:37] - Reading 195000000 reads at chr1:108691888 and skipping 141607644
+NOTICE [2024/10/22 08:17:17] - Reading 196000000 reads at chr1:109094595 and skipping 142255147
+NOTICE [2024/10/22 08:23:03] - Reading 199000000 reads at chr1:110895745 and skipping 144414644
+NOTICE [2024/10/22 08:38:35] - Reading 220000 variants at chr1:113981406, Skipping 0, Missing 0.
+NOTICE [2024/10/22 08:50:20] - Reading 209000000 reads at chr1:119186334 and skipping 151149204
+NOTICE [2024/10/22 08:50:52] - Reading 210000000 reads at chr1:120850738 and skipping 151901157
+NOTICE [2024/10/22 08:51:59] - Reading 230000 variants at chr1:145954448, Skipping 0, Missing 0.
+NOTICE [2024/10/22 08:53:40] - Reading 213000000 reads at chr1:145926820 and skipping 154129189
+NOTICE [2024/10/22 09:12:04] - Reading 225000000 reads at chr1:150391813 and skipping 163305516
+NOTICE [2024/10/22 09:47:13] - Reading 240000 variants at chr1:153868548, Skipping 0, Missing 0.
+NOTICE [2024/10/22 09:48:05] - Reading 238000000 reads at chr1:153358308 and skipping 173275736
+NOTICE [2024/10/22 09:57:14] - Reading 243000000 reads at chr1:153360654 and skipping 177360598
+NOTICE [2024/10/22 10:03:46] - Reading 247000000 reads at chr1:153360850 and skipping 180724424
+NOTICE [2024/10/22 10:25:07] - Reading 254000000 reads at chr1:153534792 and skipping 185701592
+NOTICE [2024/10/22 10:31:29] - Reading 257000000 reads at chr1:153543780 and skipping 188047640
+NOTICE [2024/10/22 10:48:57] - Reading 264000000 reads at chr1:153990788 and skipping 193338958
+NOTICE [2024/10/22 10:54:51] - Reading 266000000 reads at chr1:153991147 and skipping 194734910
+NOTICE [2024/10/22 10:59:11] - Reading 267000000 reads at chr1:153991167 and skipping 195321469
+NOTICE [2024/10/22 11:03:31] - Reading 268000000 reads at chr1:153991186 and skipping 195906859
+NOTICE [2024/10/22 11:24:02] - Reading 273000000 reads at chr1:153991587 and skipping 198853778
+NOTICE [2024/10/22 11:28:05] - Reading 274000000 reads at chr1:153991598 and skipping 199452609
+NOTICE [2024/10/22 11:43:47] - Reading 278000000 reads at chr1:153991671 and skipping 201944599
+NOTICE [2024/10/22 12:13:57] - Reading 288000000 reads at chr1:156018349 and skipping 209376444
+NOTICE [2024/10/22 12:16:36] - Reading 289000000 reads at chr1:156211780 and skipping 210139151
+NOTICE [2024/10/22 12:25:29] - Reading 250000 variants at chr1:159569002, Skipping 0, Missing 0.
+NOTICE [2024/10/22 12:27:06] - Reading 293000000 reads at chr1:159918512 and skipping 212998137
+NOTICE [2024/10/22 12:41:39] - Reading 296000000 reads at chr1:160485150 and skipping 214997602
+NOTICE [2024/10/22 12:49:27] - Reading 299000000 reads at chr1:161089539 and skipping 217301367
+NOTICE [2024/10/22 13:01:48] - Reading 260000 variants at chr1:165656352, Skipping 0, Missing 0.
+NOTICE [2024/10/22 13:07:07] - Reading 306000000 reads at chr1:167444260 and skipping 222572796
+NOTICE [2024/10/22 13:15:11] - Reading 308000000 reads at chr1:168241604 and skipping 223977668
+NOTICE [2024/10/22 13:19:52] - Reading 270000 variants at chr1:170021515, Skipping 0, Missing 0.
+NOTICE [2024/10/22 13:37:08] - Reading 314000000 reads at chr1:173864702 and skipping 228207916
+NOTICE [2024/10/22 13:41:30] - Reading 316000000 reads at chr1:174022134 and skipping 229796121
+NOTICE [2024/10/22 13:42:00] - Reading 280000 variants at chr1:174648334, Skipping 0, Missing 0.
+NOTICE [2024/10/22 13:48:01] - Reading 318000000 reads at chr1:176160046 and skipping 231096193
+NOTICE [2024/10/22 13:48:32] - Reading 290000 variants at chr1:179054744, Skipping 0, Missing 0.
+NOTICE [2024/10/22 13:53:06] - Reading 319000000 reads at chr1:179884692 and skipping 231750549
+NOTICE [2024/10/22 13:59:41] - Reading 321000000 reads at chr1:182842607 and skipping 233134343
+NOTICE [2024/10/22 14:00:03] - Reading 300000 variants at chr1:183202820, Skipping 0, Missing 0.
+NOTICE [2024/10/22 14:08:13] - Reading 310000 variants at chr1:188973001, Skipping 0, Missing 0.
+NOTICE [2024/10/22 14:12:46] - Reading 320000 variants at chr1:196370554, Skipping 0, Missing 0.
+NOTICE [2024/10/22 14:16:07] - Reading 328000000 reads at chr1:198680080 and skipping 237802916
+NOTICE [2024/10/22 14:17:23] - Reading 329000000 reads at chr1:198696841 and skipping 238562137
+NOTICE [2024/10/22 14:23:51] - Reading 330000 variants at chr1:202185436, Skipping 0, Missing 0.
+NOTICE [2024/10/22 14:36:08] - Reading 335000000 reads at chr1:203802671 and skipping 242731118
+NOTICE [2024/10/22 14:45:11] - Reading 337000000 reads at chr1:205729583 and skipping 243920121
+NOTICE [2024/10/22 14:49:31] - Reading 340000 variants at chr1:207177852, Skipping 0, Missing 0.
+NOTICE [2024/10/22 14:58:25] - Reading 343000000 reads at chr1:209775386 and skipping 248237698
+NOTICE [2024/10/22 15:01:09] - Reading 350000 variants at chr1:212647555, Skipping 0, Missing 0.
+NOTICE [2024/10/22 15:05:28] - Reading 345000000 reads at chr1:213006704 and skipping 249563686
+NOTICE [2024/10/22 15:06:05] - Reading 360000 variants at chr1:217646411, Skipping 0, Missing 0.
+NOTICE [2024/10/22 15:10:02] - Reading 347000000 reads at chr1:222823886 and skipping 250842149
+NOTICE [2024/10/22 15:10:12] - Reading 370000 variants at chr1:224213529, Skipping 0, Missing 0.
+NOTICE [2024/10/22 15:21:01] - Reading 350000000 reads at chr1:225877533 and skipping 252813506
+NOTICE [2024/10/22 15:27:10] - Reading 355000000 reads at chr1:226661122 and skipping 256570689
+NOTICE [2024/10/22 15:29:30] - Reading 356000000 reads at chr1:228097195 and skipping 257270131
+NOTICE [2024/10/22 15:35:11] - Reading 380000 variants at chr1:229622976, Skipping 0, Missing 0.
+NOTICE [2024/10/22 15:42:07] - Reading 390000 variants at chr1:233912795, Skipping 0, Missing 0.
+NOTICE [2024/10/22 15:42:15] - Reading 361000000 reads at chr1:234373053 and skipping 260983822
+NOTICE [2024/10/22 15:46:59] - Reading 362000000 reads at chr1:234609821 and skipping 261653962
+NOTICE [2024/10/22 16:10:23] - Reading 366000000 reads at chr1:236097599 and skipping 263956108
+NOTICE [2024/10/22 16:15:39] - Reading 400000 variants at chr1:237281435, Skipping 0, Missing 0.
+NOTICE [2024/10/22 16:16:01] - Reading 410000 variants at chr1:241193857, Skipping 0, Missing 0.
+NOTICE [2024/10/22 16:17:00] - Reading 367000000 reads at chr1:241848923 and skipping 264596420
+NOTICE [2024/10/22 16:22:09] - Reading 368000000 reads at chr1:244436873 and skipping 265166007
+NOTICE [2024/10/22 16:33:06] - Reading 369000000 reads at chr1:244860471 and skipping 265703907
+NOTICE [2024/10/22 16:41:28] - Reading 420000 variants at chr1:245624666, Skipping 0, Missing 0.
+NOTICE [2024/10/22 16:54:59] - Reading 430000 variants at chr1:248698514, Skipping 0, Missing 0.
+NOTICE [2024/10/22 16:56:29] - Reading 372000000 reads at chr10:911960 and skipping 267480569
+NOTICE [2024/10/22 17:05:04] - Reading 373000000 reads at chr10:3101555 and skipping 268143498
+NOTICE [2024/10/22 17:07:25] - Reading 374000000 reads at chr10:3782056 and skipping 268868037
+NOTICE [2024/10/22 17:09:45] - Reading 375000000 reads at chr10:3784933 and skipping 269637239
+NOTICE [2024/10/22 17:13:43] - Reading 376000000 reads at chr10:3785933 and skipping 270229009
+NOTICE [2024/10/22 17:15:28] - Reading 440000 variants at chr10:4420418, Skipping 0, Missing 0.
+NOTICE [2024/10/22 17:27:01] - Reading 378000000 reads at chr10:6237804 and skipping 271399350
+NOTICE [2024/10/22 17:33:55] - Reading 450000 variants at chr10:7946316, Skipping 0, Missing 0.
+NOTICE [2024/10/22 17:38:09] - Reading 381000000 reads at chr10:11195418 and skipping 273280000
+NOTICE [2024/10/22 17:53:52] - Reading 460000 variants at chr10:13791919, Skipping 0, Missing 0.
+NOTICE [2024/10/22 17:57:00] - Reading 384000000 reads at chr10:14521965 and skipping 275275266
+NOTICE [2024/10/22 18:03:36] - Reading 385000000 reads at chr10:14954378 and skipping 275879936
+NOTICE [2024/10/22 18:10:00] - Reading 470000 variants at chr10:17597250, Skipping 0, Missing 0.
+NOTICE [2024/10/22 18:11:08] - Reading 388000000 reads at chr10:17229481 and skipping 278073861
+NOTICE [2024/10/22 18:24:24] - Reading 391000000 reads at chr10:17237319 and skipping 280164802
+NOTICE [2024/10/22 18:27:42] - Reading 480000 variants at chr10:21086931, Skipping 0, Missing 0.
+NOTICE [2024/10/22 18:32:55] - Reading 490000 variants at chr10:25725941, Skipping 0, Missing 0.
+NOTICE [2024/10/22 18:50:36] - Reading 397000000 reads at chr10:28335103 and skipping 283873663
+NOTICE [2024/10/22 18:54:30] - Reading 500000 variants at chr10:29688415, Skipping 0, Missing 0.
+NOTICE [2024/10/22 18:59:47] - Reading 400000000 reads at chr10:31759845 and skipping 285930912
+NOTICE [2024/10/22 19:13:33] - Reading 510000 variants at chr10:36941797, Skipping 0, Missing 0.
+NOTICE [2024/10/22 19:16:24] - Reading 405000000 reads at chr10:43141645 and skipping 289395362
+NOTICE [2024/10/22 19:18:38] - Reading 406000000 reads at chr10:43455369 and skipping 290057032
+NOTICE [2024/10/22 19:24:13] - Reading 520000 variants at chr10:48560968, Skipping 0, Missing 0.
+NOTICE [2024/10/22 19:30:35] - Reading 409000000 reads at chr10:50378889 and skipping 292005354
+NOTICE [2024/10/22 19:31:04] - Reading 530000 variants at chr10:52310809, Skipping 0, Missing 0.
+NOTICE [2024/10/22 19:31:05] - Reading 540000 variants at chr10:58326235, Skipping 0, Missing 0.
+NOTICE [2024/10/22 19:35:29] - Reading 411000000 reads at chr10:62090922 and skipping 293365843
+NOTICE [2024/10/22 19:36:28] - Reading 550000 variants at chr10:63571751, Skipping 0, Missing 0.
+NOTICE [2024/10/22 19:42:11] - Reading 560000 variants at chr10:67215032, Skipping 0, Missing 0.
+NOTICE [2024/10/22 19:49:34] - Reading 414000000 reads at chr10:68728471 and skipping 295391837
+NOTICE [2024/10/22 19:59:36] - Reading 416000000 reads at chr10:69088216 and skipping 296780855
+NOTICE [2024/10/22 20:27:08] - Reading 423000000 reads at chr10:70599907 and skipping 302226890
+NOTICE [2024/10/22 20:28:55] - Reading 570000 variants at chr10:71330452, Skipping 0, Missing 0.
+NOTICE [2024/10/22 21:01:51] - Reading 432000000 reads at chr10:74826754 and skipping 308407905
+NOTICE [2024/10/22 21:08:32] - Reading 580000 variants at chr10:76129503, Skipping 0, Missing 0.
+NOTICE [2024/10/22 21:11:27] - Reading 434000000 reads at chr10:78035357 and skipping 309827617
+NOTICE [2024/10/22 21:13:37] - Reading 435000000 reads at chr10:78035400 and skipping 310585355
+NOTICE [2024/10/22 21:19:13] - Reading 438000000 reads at chr10:78035552 and skipping 312916928
+NOTICE [2024/10/22 21:20:59] - Reading 439000000 reads at chr10:78035569 and skipping 313701933
+NOTICE [2024/10/22 21:22:43] - Reading 440000000 reads at chr10:78035581 and skipping 314493180
+NOTICE [2024/10/22 21:24:22] - Reading 441000000 reads at chr10:78035596 and skipping 315292670
+NOTICE [2024/10/22 21:37:53] - Reading 590000 variants at chr10:82034064, Skipping 0, Missing 0.
+NOTICE [2024/10/22 21:41:17] - Reading 450000000 reads at chr10:86453015 and skipping 322265146
+NOTICE [2024/10/22 21:45:18] - Reading 600000 variants at chr10:88279267, Skipping 0, Missing 0.
+NOTICE [2024/10/22 21:55:02] - Reading 455000000 reads at chr10:92029945 and skipping 325617050
+NOTICE [2024/10/22 21:56:13] - Reading 610000 variants at chr10:93576382, Skipping 0, Missing 0.
+NOTICE [2024/10/22 21:57:37] - Reading 456000000 reads at chr10:95656767 and skipping 326259394
+NOTICE [2024/10/22 22:10:49] - Reading 458000000 reads at chr10:97430583 and skipping 327565741
+NOTICE [2024/10/22 22:11:59] - Reading 620000 variants at chr10:97949544, Skipping 0, Missing 0.
+NOTICE [2024/10/22 22:21:33] - Reading 462000000 reads at chr10:101812052 and skipping 330427794
+NOTICE [2024/10/22 22:28:39] - Reading 630000 variants at chr10:103200543, Skipping 0, Missing 0.
+NOTICE [2024/10/22 22:36:11] - Reading 640000 variants at chr10:109910462, Skipping 0, Missing 0.
+NOTICE [2024/10/22 22:36:28] - Reading 466000000 reads at chr10:109812363 and skipping 333105701
+NOTICE [2024/10/22 22:53:16] - Reading 650000 variants at chr10:115650688, Skipping 0, Missing 0.
+NOTICE [2024/10/22 23:03:18] - Reading 474000000 reads at chr10:119515634 and skipping 338380319
+NOTICE [2024/10/22 23:05:05] - Reading 660000 variants at chr10:120687972, Skipping 0, Missing 0.
+NOTICE [2024/10/22 23:14:05] - Reading 670000 variants at chr10:125594467, Skipping 0, Missing 0.
+NOTICE [2024/10/22 23:16:36] - Reading 680000 variants at chr10:130105474, Skipping 0, Missing 0.
+NOTICE [2024/10/22 23:20:57] - Reading 480000000 reads at chr10:132646314 and skipping 342464132
+NOTICE [2024/10/22 23:32:01] - Reading 483000000 reads at chr11:309088 and skipping 344673494
+NOTICE [2024/10/22 23:35:47] - Reading 484000000 reads at chr11:314178 and skipping 345444307
+NOTICE [2024/10/22 23:47:20] - Reading 487000000 reads at chr11:314949 and skipping 347772222
+NOTICE [2024/10/23 00:14:59] - Reading 690000 variants at chr11:1089193, Skipping 0, Missing 0.
+NOTICE [2024/10/23 00:21:54] - Reading 493000000 reads at chr11:810265 and skipping 351712565
+NOTICE [2024/10/23 01:26:54] - Reading 508000000 reads at chr11:3775174 and skipping 362923742
+NOTICE [2024/10/23 01:31:30] - Reading 700000 variants at chr11:4850917, Skipping 0, Missing 0.
+NOTICE [2024/10/23 01:42:27] - Reading 710000 variants at chr11:7606555, Skipping 0, Missing 0.
+NOTICE [2024/10/23 01:55:55] - Reading 517000000 reads at chr11:8684797 and skipping 369754240
+NOTICE [2024/10/23 02:07:11] - Reading 520000000 reads at chr11:10508884 and skipping 371945262
+NOTICE [2024/10/23 02:09:56] - Reading 720000 variants at chr11:11182162, Skipping 0, Missing 0.
+NOTICE [2024/10/23 02:11:53] - Reading 522000000 reads at chr11:11887615 and skipping 373431301
+NOTICE [2024/10/23 02:19:15] - Reading 524000000 reads at chr11:14517712 and skipping 374729683
+NOTICE [2024/10/23 02:24:17] - Reading 730000 variants at chr11:15643893, Skipping 0, Missing 0.
+NOTICE [2024/10/23 02:32:36] - Reading 530000000 reads at chr11:17075455 and skipping 379517525
+NOTICE [2024/10/23 02:38:51] - Reading 534000000 reads at chr11:17075515 and skipping 382811190
+NOTICE [2024/10/23 02:42:12] - Reading 536000000 reads at chr11:17075533 and skipping 384432007
+NOTICE [2024/10/23 02:54:16] - Reading 542000000 reads at chr11:17075619 and skipping 389222755
+NOTICE [2024/10/23 03:03:16] - Reading 545000000 reads at chr11:18322183 and skipping 391526005
+NOTICE [2024/10/23 03:09:54] - Reading 740000 variants at chr11:19856553, Skipping 0, Missing 0.
+NOTICE [2024/10/23 03:10:57] - Reading 750000 variants at chr11:23788767, Skipping 0, Missing 0.
+NOTICE [2024/10/23 03:11:17] - Reading 760000 variants at chr11:28962245, Skipping 0, Missing 0.
+NOTICE [2024/10/23 03:15:12] - Reading 549000000 reads at chr11:33288715 and skipping 394503247
+NOTICE [2024/10/23 03:15:24] - Reading 770000 variants at chr11:33729506, Skipping 0, Missing 0.
+NOTICE [2024/10/23 03:26:47] - Reading 780000 variants at chr11:40695273, Skipping 0, Missing 0.
+NOTICE [2024/10/23 03:31:55] - Reading 790000 variants at chr11:46124330, Skipping 0, Missing 0.
+NOTICE [2024/10/23 03:32:44] - Reading 554000000 reads at chr11:45933381 and skipping 397794546
+NOTICE [2024/10/23 03:34:51] - Reading 556000000 reads at chr11:46504074 and skipping 399576293
+NOTICE [2024/10/23 03:52:24] - Reading 800000 variants at chr11:59512816, Skipping 0, Missing 0.
+NOTICE [2024/10/23 04:14:10] - Reading 570000000 reads at chr11:61965093 and skipping 409634282
+NOTICE [2024/10/23 04:17:55] - Reading 572000000 reads at chr11:61965413 and skipping 411385434
+NOTICE [2024/10/23 04:19:47] - Reading 573000000 reads at chr11:61965433 and skipping 412260870
+NOTICE [2024/10/23 04:57:37] - Reading 589000000 reads at chr11:61967368 and skipping 425809714
+NOTICE [2024/10/23 05:26:35] - Reading 600000000 reads at chr11:62026293 and skipping 434830733
+NOTICE [2024/10/23 05:42:03] - Reading 608000000 reads at chr11:62831356 and skipping 440794212
+NOTICE [2024/10/23 05:51:57] - Reading 612000000 reads at chr11:63988670 and skipping 443878977
+NOTICE [2024/10/23 05:54:01] - Reading 613000000 reads at chr11:64230789 and skipping 444657008
+NOTICE [2024/10/23 06:00:37] - Reading 615000000 reads at chr11:64727071 and skipping 446081748
+NOTICE [2024/10/23 06:03:29] - Reading 616000000 reads at chr11:64776378 and skipping 446774889
+NOTICE [2024/10/23 06:06:09] - Reading 810000 variants at chr11:65183956, Skipping 0, Missing 0.
+NOTICE [2024/10/23 06:24:14] - Reading 626000000 reads at chr11:65121524 and skipping 454725475
+NOTICE [2024/10/23 06:35:11] - Reading 631000000 reads at chr11:65133491 and skipping 458597083
+NOTICE [2024/10/23 06:45:58] - Reading 635000000 reads at chr11:65499065 and skipping 461356296
+NOTICE [2024/10/23 07:08:25] - Reading 645000000 reads at chr11:65499140 and skipping 469066473
+NOTICE [2024/10/23 07:16:58] - Reading 649000000 reads at chr11:65499153 and skipping 472189325
+NOTICE [2024/10/23 07:19:07] - Reading 650000000 reads at chr11:65499156 and skipping 472967691
+NOTICE [2024/10/23 07:23:19] - Reading 652000000 reads at chr11:65499162 and skipping 474536286
+NOTICE [2024/10/23 07:51:31] - Reading 666000000 reads at chr11:65499201 and skipping 485632682
+NOTICE [2024/10/23 07:53:27] - Reading 667000000 reads at chr11:65499203 and skipping 486433427
+NOTICE [2024/10/23 08:02:50] - Reading 672000000 reads at chr11:65499212 and skipping 490459251
+NOTICE [2024/10/23 08:04:43] - Reading 673000000 reads at chr11:65499216 and skipping 491264750
+NOTICE [2024/10/23 08:28:14] - Reading 686000000 reads at chr11:65499248 and skipping 501843946
+NOTICE [2024/10/23 08:31:29] - Reading 688000000 reads at chr11:65499251 and skipping 503508234
+NOTICE [2024/10/23 08:53:01] - Reading 702000000 reads at chr11:65499295 and skipping 515298489
+NOTICE [2024/10/23 08:55:50] - Reading 704000000 reads at chr11:65499300 and skipping 517008814
+NOTICE [2024/10/23 09:06:03] - Reading 711000000 reads at chr11:65499334 and skipping 522987807
+NOTICE [2024/10/23 09:12:54] - Reading 716000000 reads at chr11:65499365 and skipping 527300734
+NOTICE [2024/10/23 09:17:59] - Reading 720000000 reads at chr11:65499395 and skipping 530777185
+NOTICE [2024/10/23 09:40:46] - Reading 731000000 reads at chr11:65499681 and skipping 539429542
+NOTICE [2024/10/23 09:51:23] - Reading 733000000 reads at chr11:65500036 and skipping 540341314
+NOTICE [2024/10/23 09:56:00] - Reading 734000000 reads at chr11:65500381 and skipping 540870469
+NOTICE [2024/10/23 10:01:10] - Reading 735000000 reads at chr11:65501167 and skipping 541345389
+NOTICE [2024/10/23 10:13:15] - Reading 739000000 reads at chr11:65503653 and skipping 544128172
+NOTICE [2024/10/23 10:19:56] - Reading 740000000 reads at chr11:65504604 and skipping 544450567
+NOTICE [2024/10/23 10:25:30] - Reading 741000000 reads at chr11:65575673 and skipping 544876414
+NOTICE [2024/10/23 10:46:18] - Reading 751000000 reads at chr11:66117951 and skipping 552787476
+NOTICE [2024/10/23 11:08:11] - Reading 756000000 reads at chr11:67436076 and skipping 556013093
+NOTICE [2024/10/23 11:23:37] - Reading 757000000 reads at chr11:67436190 and skipping 556014302
+NOTICE [2024/10/23 11:35:42] - Reading 759000000 reads at chr11:67584547 and skipping 557255941
+NOTICE [2024/10/23 11:46:07] - Reading 820000 variants at chr11:71212773, Skipping 0, Missing 0.
+NOTICE [2024/10/23 11:47:22] - Reading 763000000 reads at chr11:72012906 and skipping 560225168
+NOTICE [2024/10/23 12:01:57] - Reading 830000 variants at chr11:75778359, Skipping 0, Missing 0.
+NOTICE [2024/10/23 12:13:51] - Reading 773000000 reads at chr11:75400768 and skipping 567938039
+NOTICE [2024/10/23 12:15:55] - Reading 774000000 reads at chr11:75400776 and skipping 568780055
+NOTICE [2024/10/23 12:31:15] - Reading 782000000 reads at chr11:75401673 and skipping 575599705
+NOTICE [2024/10/23 12:45:14] - Reading 790000000 reads at chr11:75404038 and skipping 582591790
+NOTICE [2024/10/23 12:57:08] - Reading 794000000 reads at chr11:78073134 and skipping 585715537
+NOTICE [2024/10/23 13:00:52] - Reading 840000 variants at chr11:81357527, Skipping 0, Missing 0.
+NOTICE [2024/10/23 13:05:46] - Reading 796000000 reads at chr11:83158457 and skipping 586853255
+NOTICE [2024/10/23 13:08:24] - Reading 850000 variants at chr11:85308647, Skipping 0, Missing 0.
+NOTICE [2024/10/23 13:10:52] - Reading 797000000 reads at chr11:85807267 and skipping 587491726
+NOTICE [2024/10/23 13:15:47] - Reading 860000 variants at chr11:90172996, Skipping 0, Missing 0.
+NOTICE [2024/10/23 13:18:11] - Reading 800000000 reads at chr11:94490917 and skipping 589539626
+NOTICE [2024/10/23 13:19:33] - Reading 801000000 reads at chr11:95185375 and skipping 590276031
+NOTICE [2024/10/23 13:19:34] - Reading 870000 variants at chr11:95741062, Skipping 0, Missing 0.
+NOTICE [2024/10/23 13:25:02] - Reading 802000000 reads at chr11:96275083 and skipping 590944832
+NOTICE [2024/10/23 13:26:07] - Reading 880000 variants at chr11:100754290, Skipping 0, Missing 0.
+NOTICE [2024/10/23 13:32:27] - Reading 890000 variants at chr11:105338474, Skipping 0, Missing 0.
+NOTICE [2024/10/23 13:35:25] - Reading 806000000 reads at chr11:108037034 and skipping 593655274
+NOTICE [2024/10/23 13:38:54] - Reading 807000000 reads at chr11:108915758 and skipping 594273496
+NOTICE [2024/10/23 13:39:33] - Reading 900000 variants at chr11:111690091, Skipping 0, Missing 0.
+NOTICE [2024/10/23 13:47:59] - Reading 810000000 reads at chr11:116990307 and skipping 596411530
+NOTICE [2024/10/23 13:53:43] - Reading 910000 variants at chr11:117683727, Skipping 0, Missing 0.
+NOTICE [2024/10/23 14:21:50] - Reading 819000000 reads at chr11:118452972 and skipping 603358352
+NOTICE [2024/10/23 14:28:03] - Reading 820000000 reads at chr11:118778782 and skipping 603849591
+NOTICE [2024/10/23 14:36:32] - Reading 823000000 reads at chr11:119015932 and skipping 606219271
+NOTICE [2024/10/23 14:49:54] - Reading 826000000 reads at chr11:119017422 and skipping 608601125
+NOTICE [2024/10/23 14:54:35] - Reading 827000000 reads at chr11:119017441 and skipping 609382743
+NOTICE [2024/10/23 15:16:05] - Reading 831000000 reads at chr11:119017522 and skipping 612465459
+NOTICE [2024/10/23 15:29:59] - Reading 920000 variants at chr11:122071613, Skipping 0, Missing 0.
+NOTICE [2024/10/23 15:44:01] - Reading 930000 variants at chr11:126679608, Skipping 0, Missing 0.
+NOTICE [2024/10/23 15:49:05] - Reading 839000000 reads at chr11:128758177 and skipping 617994416
+NOTICE [2024/10/23 15:53:02] - Reading 840000000 reads at chr11:130238518 and skipping 618700518
+NOTICE [2024/10/23 15:53:25] - Reading 940000 variants at chr11:131864772, Skipping 0, Missing 0.
+NOTICE [2024/10/23 15:55:42] - Reading 950000 variants at chr12:510452, Skipping 0, Missing 0.
+NOTICE [2024/10/23 15:58:56] - Reading 841000000 reads at chr12:372402 and skipping 619306549
+NOTICE [2024/10/23 16:05:07] - Reading 842000000 reads at chr12:1605743 and skipping 619901282
+NOTICE [2024/10/23 16:09:16] - Reading 960000 variants at chr12:3520020, Skipping 0, Missing 0.
+NOTICE [2024/10/23 16:29:05] - Reading 850000000 reads at chr12:6536752 and skipping 626235892
+NOTICE [2024/10/23 16:37:22] - Reading 853000000 reads at chr12:6774566 and skipping 628609112
+NOTICE [2024/10/23 16:43:05] - Reading 856000000 reads at chr12:6945904 and skipping 630987891
+NOTICE [2024/10/23 16:45:10] - Reading 857000000 reads at chr12:7096398 and skipping 631749123
+NOTICE [2024/10/23 16:45:28] - Reading 970000 variants at chr12:7888730, Skipping 0, Missing 0.
+NOTICE [2024/10/23 17:09:01] - Reading 860000000 reads at chr12:9067174 and skipping 633839766
+NOTICE [2024/10/23 17:23:37] - Reading 863000000 reads at chr12:9753431 and skipping 635737136
+NOTICE [2024/10/23 17:54:47] - Reading 980000 variants at chr12:11171756, Skipping 0, Missing 0.
+NOTICE [2024/10/23 17:59:18] - Reading 872000000 reads at chr12:11293013 and skipping 642048930
+NOTICE [2024/10/23 18:04:49] - Reading 873000000 reads at chr12:12482721 and skipping 642627539
+NOTICE [2024/10/23 18:15:12] - Reading 875000000 reads at chr12:14774593 and skipping 643753223
+NOTICE [2024/10/23 18:16:56] - Reading 876000000 reads at chr12:14942637 and skipping 644461838
+NOTICE [2024/10/23 18:20:26] - Reading 879000000 reads at chr12:14961436 and skipping 646919604
+NOTICE [2024/10/23 18:20:35] - Reading 990000 variants at chr12:15917997, Skipping 0, Missing 0.
+NOTICE [2024/10/23 18:23:52] - Reading 1000000 variants at chr12:20987876, Skipping 0, Missing 0.
+NOTICE [2024/10/23 18:24:50] - Reading 881000000 reads at chr12:21469536 and skipping 648473581
+NOTICE [2024/10/23 18:30:24] - Reading 1010000 variants at chr12:24833630, Skipping 0, Missing 0.
+NOTICE [2024/10/23 18:32:04] - Reading 884000000 reads at chr12:25244476 and skipping 650742119
+NOTICE [2024/10/23 18:37:26] - Reading 886000000 reads at chr12:29341045 and skipping 652078813
+NOTICE [2024/10/23 18:37:47] - Reading 1020000 variants at chr12:29617310, Skipping 0, Missing 0.
+NOTICE [2024/10/23 18:47:03] - Reading 1030000 variants at chr12:39586815, Skipping 0, Missing 0.
+NOTICE [2024/10/23 18:50:32] - Reading 889000000 reads at chr12:42360622 and skipping 654173262
+NOTICE [2024/10/23 18:52:42] - Reading 1040000 variants at chr12:44311189, Skipping 0, Missing 0.
+NOTICE [2024/10/23 18:57:26] - Reading 892000000 reads at chr12:46244967 and skipping 656184457
+NOTICE [2024/10/23 19:17:07] - Reading 898000000 reads at chr12:49188852 and skipping 660502841
+NOTICE [2024/10/23 19:17:51] - Reading 1050000 variants at chr12:49879705, Skipping 0, Missing 0.
+NOTICE [2024/10/23 19:22:30] - Reading 900000000 reads at chr12:50129610 and skipping 662001849
+NOTICE [2024/10/23 19:29:15] - Reading 902000000 reads at chr12:51240885 and skipping 663446378
+NOTICE [2024/10/23 19:35:28] - Reading 904000000 reads at chr12:52009201 and skipping 664936248
+NOTICE [2024/10/23 19:45:17] - Reading 908000000 reads at chr12:53295916 and skipping 668008730
+NOTICE [2024/10/23 19:53:26] - Reading 912000000 reads at chr12:53443460 and skipping 671329235
+NOTICE [2024/10/23 20:03:24] - Reading 916000000 reads at chr12:53669305 and skipping 674554345
+NOTICE [2024/10/23 20:06:15] - Reading 917000000 reads at chr12:54280794 and skipping 675319157
+NOTICE [2024/10/23 20:09:11] - Reading 918000000 reads at chr12:54281459 and skipping 675975486
+NOTICE [2024/10/23 20:11:19] - Reading 919000000 reads at chr12:54281811 and skipping 676727259
+NOTICE [2024/10/23 20:18:41] - Reading 1060000 variants at chr12:55250413, Skipping 0, Missing 0.
+NOTICE [2024/10/23 20:28:32] - Reading 926000000 reads at chr12:56042509 and skipping 681848893
+NOTICE [2024/10/23 20:35:38] - Reading 928000000 reads at chr12:56042553 and skipping 683245786
+NOTICE [2024/10/23 20:39:05] - Reading 929000000 reads at chr12:56042570 and skipping 683954608
+NOTICE [2024/10/23 20:48:31] - Reading 932000000 reads at chr12:56043383 and skipping 686128844
+NOTICE [2024/10/23 21:15:33] - Reading 941000000 reads at chr12:56117530 and skipping 692706636
+NOTICE [2024/10/23 21:42:05] - Reading 950000000 reads at chr12:56117594 and skipping 699170998
+NOTICE [2024/10/23 21:58:39] - Reading 956000000 reads at chr12:56117638 and skipping 703589832
+NOTICE [2024/10/23 22:01:16] - Reading 957000000 reads at chr12:56117647 and skipping 704339522
+NOTICE [2024/10/23 22:11:42] - Reading 961000000 reads at chr12:56117702 and skipping 707401127
+NOTICE [2024/10/23 22:28:29] - Reading 967000000 reads at chr12:56628657 and skipping 712060547
+NOTICE [2024/10/23 22:32:04] - Reading 968000000 reads at chr12:56664389 and skipping 712764728
+NOTICE [2024/10/23 22:34:40] - Reading 969000000 reads at chr12:56712537 and skipping 713548334
+NOTICE [2024/10/23 22:36:55] - Reading 970000000 reads at chr12:56713159 and skipping 714360036
+NOTICE [2024/10/23 22:42:02] - Reading 973000000 reads at chr12:56713631 and skipping 716924338
+NOTICE [2024/10/23 23:04:23] - Reading 1070000 variants at chr12:62897872, Skipping 0, Missing 0.
+NOTICE [2024/10/23 23:14:17] - Reading 985000000 reads at chr12:64405093 and skipping 726198490
+NOTICE [2024/10/23 23:23:02] - Reading 1080000 variants at chr12:68149102, Skipping 0, Missing 0.
+NOTICE [2024/10/23 23:31:37] - Reading 991000000 reads at chr12:69262227 and skipping 730631313
+NOTICE [2024/10/23 23:35:14] - Reading 992000000 reads at chr12:69348486 and skipping 731424078
+NOTICE [2024/10/23 23:48:41] - Reading 996000000 reads at chr12:69350189 and skipping 734716752
+NOTICE [2024/10/23 23:51:47] - Reading 997000000 reads at chr12:69350243 and skipping 735564690
+NOTICE [2024/10/24 00:13:47] - Reading 1090000 variants at chr12:72558988, Skipping 0, Missing 0.
+NOTICE [2024/10/24 00:13:49] - Reading 1003000000 reads at chr12:74539332 and skipping 739917221
+NOTICE [2024/10/24 00:21:49] - Reading 1006000000 reads at chr12:76410565 and skipping 742181759
+NOTICE [2024/10/24 00:22:51] - Reading 1100000 variants at chr12:78500539, Skipping 0, Missing 0.
+NOTICE [2024/10/24 00:25:21] - Reading 1110000 variants at chr12:84047777, Skipping 0, Missing 0.
+NOTICE [2024/10/24 00:29:46] - Reading 1120000 variants at chr12:92160414, Skipping 0, Missing 0.
+NOTICE [2024/10/24 00:39:51] - Reading 1014000000 reads at chr12:92145533 and skipping 747970799
+NOTICE [2024/10/24 00:43:45] - Reading 1016000000 reads at chr12:92145630 and skipping 749585645
+NOTICE [2024/10/24 00:59:30] - Reading 1021000000 reads at chr12:96392773 and skipping 753090749
+NOTICE [2024/10/24 01:01:04] - Reading 1130000 variants at chr12:97019271, Skipping 0, Missing 0.
+NOTICE [2024/10/24 01:02:57] - Reading 1022000000 reads at chr12:98594058 and skipping 753704640
+NOTICE [2024/10/24 01:09:26] - Reading 1140000 variants at chr12:102171636, Skipping 0, Missing 0.
+NOTICE [2024/10/24 01:15:01] - Reading 1026000000 reads at chr12:103947423 and skipping 756603676
+NOTICE [2024/10/24 01:24:09] - Reading 1150000 variants at chr12:107406539, Skipping 0, Missing 0.
+NOTICE [2024/10/24 01:36:40] - Reading 1033000000 reads at chr12:110437097 and skipping 761629485
+NOTICE [2024/10/24 01:38:56] - Reading 1034000000 reads at chr12:110440344 and skipping 762465203
+NOTICE [2024/10/24 01:41:17] - Reading 1035000000 reads at chr12:110496037 and skipping 763281345
+NOTICE [2024/10/24 01:44:30] - Reading 1036000000 reads at chr12:111433146 and skipping 763986222
+NOTICE [2024/10/24 01:49:50] - Reading 1038000000 reads at chr12:112090812 and skipping 765466593
+NOTICE [2024/10/24 01:50:43] - Reading 1160000 variants at chr12:112830795, Skipping 0, Missing 0.
+NOTICE [2024/10/24 01:53:03] - Reading 1039000000 reads at chr12:112406035 and skipping 766222803
+NOTICE [2024/10/24 02:20:17] - Reading 1049000000 reads at chr12:112408453 and skipping 774753764
+NOTICE [2024/10/24 02:36:59] - Reading 1053000000 reads at chr12:116008593 and skipping 777815382
+NOTICE [2024/10/24 02:41:01] - Reading 1054000000 reads at chr12:117075271 and skipping 778430124
+NOTICE [2024/10/24 02:43:02] - Reading 1170000 variants at chr12:118127487, Skipping 0, Missing 0.
+NOTICE [2024/10/24 02:48:54] - Reading 1056000000 reads at chr12:118246269 and skipping 779369758
+NOTICE [2024/10/24 02:54:05] - Reading 1057000000 reads at chr12:118246282 and skipping 779373599
+NOTICE [2024/10/24 02:59:16] - Reading 1058000000 reads at chr12:118246295 and skipping 779375455
+NOTICE [2024/10/24 03:04:26] - Reading 1059000000 reads at chr12:118246318 and skipping 779378183
+NOTICE [2024/10/24 03:09:37] - Reading 1060000000 reads at chr12:118246336 and skipping 779380972
+NOTICE [2024/10/24 03:21:15] - Reading 1064000000 reads at chr12:120199136 and skipping 782298837
+NOTICE [2024/10/24 03:51:31] - Reading 1073000000 reads at chr12:120438185 and skipping 789427806
+NOTICE [2024/10/24 03:54:49] - Reading 1074000000 reads at chr12:120438519 and skipping 790249757
+NOTICE [2024/10/24 04:02:35] - Reading 1076000000 reads at chr12:120810866 and skipping 791772427
+NOTICE [2024/10/24 04:25:12] - Reading 1180000 variants at chr12:123041104, Skipping 0, Missing 0.
+NOTICE [2024/10/24 04:33:18] - Reading 1082000000 reads at chr12:123265236 and skipping 795858430
+NOTICE [2024/10/24 05:30:09] - Reading 1092000000 reads at chr12:124914241 and skipping 803556198
+NOTICE [2024/10/24 05:32:41] - Reading 1190000 variants at chr12:126696227, Skipping 0, Missing 0.
+NOTICE [2024/10/24 05:35:30] - Reading 1200000 variants at chr12:129876857, Skipping 0, Missing 0.
+NOTICE [2024/10/24 05:39:49] - Reading 1094000000 reads at chr12:131896476 and skipping 805043328
+NOTICE [2024/10/24 05:45:47] - Reading 1210000 variants at chr13:19091878, Skipping 0, Missing 0.
+NOTICE [2024/10/24 06:00:46] - Reading 1220000 variants at chr13:23769785, Skipping 0, Missing 0.
+NOTICE [2024/10/24 06:08:49] - Reading 1230000 variants at chr13:27650121, Skipping 0, Missing 0.
+NOTICE [2024/10/24 06:09:31] - Reading 1102000000 reads at chr13:27253151 and skipping 810586221
+NOTICE [2024/10/24 06:14:44] - Reading 1104000000 reads at chr13:27254226 and skipping 812119340
+NOTICE [2024/10/24 06:17:12] - Reading 1105000000 reads at chr13:27254260 and skipping 812893868
+NOTICE [2024/10/24 06:19:35] - Reading 1106000000 reads at chr13:27254277 and skipping 813675978
+NOTICE [2024/10/24 06:32:14] - Reading 1112000000 reads at chr13:27255348 and skipping 818468552
+NOTICE [2024/10/24 06:38:36] - Reading 1115000000 reads at chr13:27607424 and skipping 820839220
+NOTICE [2024/10/24 06:44:25] - Reading 1117000000 reads at chr13:28668473 and skipping 822309776
+NOTICE [2024/10/24 06:56:26] - Reading 1240000 variants at chr13:32143783, Skipping 0, Missing 0.
+NOTICE [2024/10/24 06:59:20] - Reading 1123000000 reads at chr13:32688563 and skipping 826855605
+NOTICE [2024/10/24 07:00:30] - Reading 1250000 variants at chr13:37682477, Skipping 0, Missing 0.
+NOTICE [2024/10/24 07:05:32] - Reading 1125000000 reads at chr13:40870579 and skipping 828162134
+NOTICE [2024/10/24 07:14:21] - Reading 1260000 variants at chr13:41651981, Skipping 0, Missing 0.
+NOTICE [2024/10/24 07:15:08] - Reading 1128000000 reads at chr13:41470728 and skipping 830305700
+NOTICE [2024/10/24 07:18:25] - Reading 1129000000 reads at chr13:44448053 and skipping 830999117
+NOTICE [2024/10/24 07:22:19] - Reading 1131000000 reads at chr13:45338660 and skipping 832457942
+NOTICE [2024/10/24 07:26:38] - Reading 1132000000 reads at chr13:45338767 and skipping 833193107
+NOTICE [2024/10/24 07:55:51] - Reading 1136000000 reads at chr13:45340011 and skipping 835548607
+NOTICE [2024/10/24 08:08:37] - Reading 1139000000 reads at chr13:45340057 and skipping 837761179
+NOTICE [2024/10/24 08:22:13] - Reading 1143000000 reads at chr13:45340104 and skipping 840950165
+NOTICE [2024/10/24 08:51:18] - Reading 1149000000 reads at chr13:45340169 and skipping 845630536
+NOTICE [2024/10/24 09:01:09] - Reading 1151000000 reads at chr13:45340717 and skipping 847194590
+NOTICE [2024/10/24 09:24:26] - Reading 1156000000 reads at chr13:46146976 and skipping 850942025
+NOTICE [2024/10/24 09:28:08] - Reading 1270000 variants at chr13:46475926, Skipping 0, Missing 0.
+NOTICE [2024/10/24 09:34:40] - Reading 1161000000 reads at chr13:48256305 and skipping 854777598
+NOTICE [2024/10/24 09:39:12] - Reading 1163000000 reads at chr13:49700166 and skipping 856173505
+NOTICE [2024/10/24 09:43:15] - Reading 1280000 variants at chr13:52707137, Skipping 0, Missing 0.
+NOTICE [2024/10/24 09:44:30] - Reading 1165000000 reads at chr13:52642258 and skipping 857463255
+NOTICE [2024/10/24 09:45:05] - Reading 1290000 variants at chr13:63304549, Skipping 0, Missing 0.
+NOTICE [2024/10/24 09:45:07] - Reading 1300000 variants at chr13:72758806, Skipping 0, Missing 0.
+NOTICE [2024/10/24 09:47:14] - Reading 1166000000 reads at chr13:73694689 and skipping 858145249
+NOTICE [2024/10/24 09:56:11] - Reading 1310000 variants at chr13:78450558, Skipping 0, Missing 0.
+NOTICE [2024/10/24 09:57:11] - Reading 1320000 variants at chr13:89490421, Skipping 0, Missing 0.
+NOTICE [2024/10/24 09:57:12] - Reading 1330000 variants at chr13:94191518, Skipping 0, Missing 0.
+NOTICE [2024/10/24 10:02:59] - Reading 1340000 variants at chr13:99447836, Skipping 0, Missing 0.
+NOTICE [2024/10/24 10:10:24] - Reading 1173000000 reads at chr13:100339626 and skipping 862547818
+NOTICE [2024/10/24 10:13:19] - Reading 1350000 variants at chr13:103376604, Skipping 0, Missing 0.
+NOTICE [2024/10/24 10:16:01] - Reading 1360000 variants at chr13:109989437, Skipping 0, Missing 0.
+NOTICE [2024/10/24 10:18:09] - Reading 1177000000 reads at chr13:109424269 and skipping 865631563
+NOTICE [2024/10/24 10:20:35] - Reading 1178000000 reads at chr13:110897994 and skipping 866386378
+NOTICE [2024/10/24 10:23:50] - Reading 1179000000 reads at chr13:113219599 and skipping 867037497
+NOTICE [2024/10/24 10:25:59] - Reading 1370000 variants at chr13:113966561, Skipping 0, Missing 0.
+NOTICE [2024/10/24 10:31:27] - Reading 1182000000 reads at chr14:20471977 and skipping 869031434
+NOTICE [2024/10/24 10:37:39] - Reading 1184000000 reads at chr14:21351984 and skipping 870433614
+NOTICE [2024/10/24 10:49:41] - Reading 1186000000 reads at chr14:22463010 and skipping 871686074
+NOTICE [2024/10/24 11:06:59] - Reading 1380000 variants at chr14:24289699, Skipping 0, Missing 0.
+NOTICE [2024/10/24 11:13:30] - Reading 1193000000 reads at chr14:24162298 and skipping 876878329
+NOTICE [2024/10/24 11:22:28] - Reading 1197000000 reads at chr14:24632447 and skipping 880068710
+NOTICE [2024/10/24 11:23:06] - Reading 1390000 variants at chr14:29695996, Skipping 0, Missing 0.
+NOTICE [2024/10/24 11:29:26] - Reading 1400000 variants at chr14:33725025, Skipping 0, Missing 0.
+NOTICE [2024/10/24 11:29:42] - Reading 1199000000 reads at chr14:34461305 and skipping 881469982
+NOTICE [2024/10/24 11:40:57] - Reading 1202000000 reads at chr14:35275682 and skipping 883773867
+NOTICE [2024/10/24 11:45:18] - Reading 1205000000 reads at chr14:35404452 and skipping 886110034
+NOTICE [2024/10/24 11:46:31] - Reading 1206000000 reads at chr14:35404521 and skipping 886916651
+NOTICE [2024/10/24 11:49:31] - Reading 1410000 variants at chr14:37389769, Skipping 0, Missing 0.
+NOTICE [2024/10/24 11:51:06] - Reading 1208000000 reads at chr14:39179403 and skipping 888403087
+NOTICE [2024/10/24 11:55:57] - Reading 1420000 variants at chr14:41717228, Skipping 0, Missing 0.
+NOTICE [2024/10/24 11:57:17] - Reading 1430000 variants at chr14:48426643, Skipping 0, Missing 0.
+NOTICE [2024/10/24 12:04:43] - Reading 1211000000 reads at chr14:49583619 and skipping 890274647
+NOTICE [2024/10/24 12:25:01] - Reading 1213000000 reads at chr14:49586034 and skipping 891121572
+NOTICE [2024/10/24 12:52:46] - Reading 1219000000 reads at chr14:50744224 and skipping 895407445
+NOTICE [2024/10/24 13:00:04] - Reading 1220000000 reads at chr14:51877651 and skipping 896057761
+NOTICE [2024/10/24 13:09:52] - Reading 1440000 variants at chr14:53470700, Skipping 0, Missing 0.
+NOTICE [2024/10/24 13:11:29] - Reading 1223000000 reads at chr14:54432183 and skipping 898157661
+NOTICE [2024/10/24 13:15:51] - Reading 1224000000 reads at chr14:55059001 and skipping 898855994
+NOTICE [2024/10/24 13:19:44] - Reading 1225000000 reads at chr14:55138181 and skipping 899611746
+NOTICE [2024/10/24 13:24:13] - Reading 1450000 variants at chr14:58074893, Skipping 0, Missing 0.
+NOTICE [2024/10/24 13:26:53] - Reading 1228000000 reads at chr14:58364157 and skipping 901669296
+NOTICE [2024/10/24 13:28:51] - Reading 1229000000 reads at chr14:60165179 and skipping 902416125
+NOTICE [2024/10/24 13:39:39] - Reading 1231000000 reads at chr14:61695693 and skipping 903682594
+NOTICE [2024/10/24 13:45:13] - Reading 1232000000 reads at chr14:61742416 and skipping 904229465
+NOTICE [2024/10/24 13:47:05] - Reading 1460000 variants at chr14:62701233, Skipping 0, Missing 0.
+NOTICE [2024/10/24 14:01:54] - Reading 1470000 variants at chr14:67492028, Skipping 0, Missing 0.
+NOTICE [2024/10/24 14:28:29] - Reading 1480000 variants at chr14:71979706, Skipping 0, Missing 0.
+NOTICE [2024/10/24 14:35:35] - Reading 1245000000 reads at chr14:73297241 and skipping 913348217
+NOTICE [2024/10/24 14:43:24] - Reading 1247000000 reads at chr14:74560522 and skipping 914845846
+NOTICE [2024/10/24 14:46:52] - Reading 1249000000 reads at chr14:75278873 and skipping 916162421
+NOTICE [2024/10/24 14:49:21] - Reading 1252000000 reads at chr14:75279088 and skipping 918521206
+NOTICE [2024/10/24 14:52:46] - Reading 1254000000 reads at chr14:75282124 and skipping 920019924
+NOTICE [2024/10/24 14:54:08] - Reading 1490000 variants at chr14:76190323, Skipping 0, Missing 0.
+NOTICE [2024/10/24 15:01:09] - Reading 1500000 variants at chr14:79582919, Skipping 0, Missing 0.
+NOTICE [2024/10/24 15:01:58] - Reading 1256000000 reads at chr14:81220713 and skipping 921322662
+NOTICE [2024/10/24 15:02:23] - Reading 1510000 variants at chr14:87544266, Skipping 0, Missing 0.
+NOTICE [2024/10/24 15:04:19] - Reading 1257000000 reads at chr14:89230662 and skipping 922007729
+NOTICE [2024/10/24 15:23:16] - Reading 1520000 variants at chr14:91202685, Skipping 0, Missing 0.
+NOTICE [2024/10/24 15:29:10] - Reading 1263000000 reads at chr14:91402947 and skipping 926649898
+NOTICE [2024/10/24 15:40:27] - Reading 1265000000 reads at chr14:92794423 and skipping 927939719
+NOTICE [2024/10/24 15:44:07] - Reading 1266000000 reads at chr14:94068448 and skipping 928551208
+NOTICE [2024/10/24 15:45:52] - Reading 1267000000 reads at chr14:94079585 and skipping 929333596
+NOTICE [2024/10/24 15:47:49] - Reading 1268000000 reads at chr14:94383115 and skipping 930089429
+NOTICE [2024/10/24 15:49:08] - Reading 1530000 variants at chr14:95502745, Skipping 0, Missing 0.
+NOTICE [2024/10/24 15:49:48] - Reading 1269000000 reads at chr14:96281783 and skipping 930852920
+NOTICE [2024/10/24 15:51:54] - Reading 1270000000 reads at chr14:99114490 and skipping 931522754
+NOTICE [2024/10/24 15:59:33] - Reading 1272000000 reads at chr14:100128626 and skipping 932869054
+NOTICE [2024/10/24 16:04:15] - Reading 1540000 variants at chr14:101837091, Skipping 0, Missing 0.
+NOTICE [2024/10/24 16:56:21] - Reading 1286000000 reads at chr14:105708443 and skipping 942730154
+NOTICE [2024/10/24 16:59:28] - Reading 1550000 variants at chr15:22779298, Skipping 0, Missing 0.
+NOTICE [2024/10/24 17:05:29] - Reading 1560000 variants at chr15:25498273, Skipping 0, Missing 0.
+NOTICE [2024/10/24 17:13:27] - Reading 1570000 variants at chr15:29170909, Skipping 0, Missing 0.
+NOTICE [2024/10/24 17:22:00] - Reading 1580000 variants at chr15:33768253, Skipping 0, Missing 0.
+NOTICE [2024/10/24 17:26:34] - Reading 1590000 variants at chr15:38829112, Skipping 0, Missing 0.
+NOTICE [2024/10/24 17:49:45] - Reading 1301000000 reads at chr15:41926359 and skipping 953154474
+NOTICE [2024/10/24 17:51:46] - Reading 1600000 variants at chr15:42538640, Skipping 0, Missing 0.
+NOTICE [2024/10/24 18:32:31] - Reading 1313000000 reads at chr15:44711596 and skipping 962096581
+NOTICE [2024/10/24 19:03:37] - Reading 1327000000 reads at chr15:44715475 and skipping 973750977
+NOTICE [2024/10/24 19:11:07] - Reading 1330000000 reads at chr15:44715487 and skipping 976274430
+NOTICE [2024/10/24 19:20:57] - Reading 1334000000 reads at chr15:44715503 and skipping 979648603
+NOTICE [2024/10/24 19:23:22] - Reading 1335000000 reads at chr15:44715507 and skipping 980495733
+NOTICE [2024/10/24 19:25:46] - Reading 1336000000 reads at chr15:44715511 and skipping 981343090
+NOTICE [2024/10/24 19:52:42] - Reading 1347000000 reads at chr15:44715555 and skipping 990738074
+NOTICE [2024/10/24 20:09:10] - Reading 1354000000 reads at chr15:44715598 and skipping 996812097
+NOTICE [2024/10/24 20:13:35] - Reading 1356000000 reads at chr15:44715617 and skipping 998566304
+NOTICE [2024/10/24 20:27:34] - Reading 1362000000 reads at chr15:44716330 and skipping 1003893532
+NOTICE [2024/10/24 20:36:36] - Reading 1366000000 reads at chr15:44717786 and skipping 1007395691
+NOTICE [2024/10/24 20:41:25] - Reading 1367000000 reads at chr15:44718059 and skipping 1008123256
+NOTICE [2024/10/24 20:46:51] - Reading 1610000 variants at chr15:47610564, Skipping 0, Missing 0.
+NOTICE [2024/10/24 20:58:43] - Reading 1372000000 reads at chr15:51575924 and skipping 1011561858
+NOTICE [2024/10/24 20:59:15] - Reading 1620000 variants at chr15:51992365, Skipping 0, Missing 0.
+NOTICE [2024/10/24 21:08:07] - Reading 1374000000 reads at chr15:55183325 and skipping 1012871200
+NOTICE [2024/10/24 21:14:56] - Reading 1630000 variants at chr15:56437720, Skipping 0, Missing 0.
+NOTICE [2024/10/24 21:17:23] - Reading 1376000000 reads at chr15:57171007 and skipping 1014280618
+NOTICE [2024/10/24 21:29:31] - Reading 1640000 variants at chr15:60462508, Skipping 0, Missing 0.
+NOTICE [2024/10/24 21:32:27] - Reading 1380000000 reads at chr15:60501035 and skipping 1016855363
+NOTICE [2024/10/24 21:52:07] - Reading 1384000000 reads at chr15:63630516 and skipping 1019675694
+NOTICE [2024/10/24 21:55:49] - Reading 1650000 variants at chr15:64237256, Skipping 0, Missing 0.
+NOTICE [2024/10/24 22:01:38] - Reading 1387000000 reads at chr15:64162108 and skipping 1022021349
+NOTICE [2024/10/24 22:35:09] - Reading 1392000000 reads at chr15:66501049 and skipping 1024871167
+NOTICE [2024/10/24 23:07:36] - Reading 1660000 variants at chr15:68657605, Skipping 0, Missing 0.
+NOTICE [2024/10/24 23:08:58] - Reading 1398000000 reads at chr15:68289671 and skipping 1029114001
+NOTICE [2024/10/24 23:17:43] - Reading 1402000000 reads at chr15:69452921 and skipping 1032215754
+NOTICE [2024/10/24 23:46:00] - Reading 1411000000 reads at chr15:69452988 and skipping 1039399590
+NOTICE [2024/10/25 00:12:50] - Reading 1419000000 reads at chr15:69453659 and skipping 1045838163
+NOTICE [2024/10/25 00:16:01] - Reading 1420000000 reads at chr15:69453667 and skipping 1046650873
+NOTICE [2024/10/25 00:19:09] - Reading 1421000000 reads at chr15:69453676 and skipping 1047466645
+NOTICE [2024/10/25 00:22:18] - Reading 1422000000 reads at chr15:69453685 and skipping 1048282283
+NOTICE [2024/10/25 00:25:20] - Reading 1423000000 reads at chr15:69453691 and skipping 1049103035
+NOTICE [2024/10/25 00:28:23] - Reading 1424000000 reads at chr15:69453699 and skipping 1049925739
+NOTICE [2024/10/25 00:46:05] - Reading 1430000000 reads at chr15:69455256 and skipping 1054886721
+NOTICE [2024/10/25 00:51:07] - Reading 1432000000 reads at chr15:72219482 and skipping 1056407903
+NOTICE [2024/10/25 00:54:57] - Reading 1670000 variants at chr15:74247913, Skipping 0, Missing 0.
+NOTICE [2024/10/25 01:10:23] - Reading 1680000 variants at chr15:79060350, Skipping 0, Missing 0.
+NOTICE [2024/10/25 01:18:37] - Reading 1443000000 reads at chr15:81323946 and skipping 1064438903
+NOTICE [2024/10/25 01:29:00] - Reading 1445000000 reads at chr15:82538956 and skipping 1065557696
+NOTICE [2024/10/25 01:33:22] - Reading 1690000 variants at chr15:83549064, Skipping 0, Missing 0.
+NOTICE [2024/10/25 01:41:31] - Reading 1448000000 reads at chr15:85436710 and skipping 1067660820
+NOTICE [2024/10/25 01:45:10] - Reading 1449000000 reads at chr15:85722399 and skipping 1068260621
+NOTICE [2024/10/25 01:45:54] - Reading 1700000 variants at chr15:87663473, Skipping 0, Missing 0.
+NOTICE [2024/10/25 01:46:54] - Reading 1450000000 reads at chr15:88652186 and skipping 1069007764
+NOTICE [2024/10/25 02:07:39] - Reading 1710000 variants at chr15:91561561, Skipping 0, Missing 0.
+NOTICE [2024/10/25 02:27:04] - Reading 1720000 variants at chr15:94308327, Skipping 0, Missing 0.
+NOTICE [2024/10/25 02:27:14] - Reading 1457000000 reads at chr15:94231653 and skipping 1073780515
+NOTICE [2024/10/25 02:28:47] - Reading 1730000 variants at chr15:98362092, Skipping 0, Missing 0.
+NOTICE [2024/10/25 02:32:15] - Reading 1740000 variants at chr15:101288392, Skipping 0, Missing 0.
+NOTICE [2024/10/25 02:36:35] - Reading 1459000000 reads at chr15:101293892 and skipping 1075134046
+NOTICE [2024/10/25 02:45:30] - Reading 1461000000 reads at chr16:588939 and skipping 1076594452
+NOTICE [2024/10/25 02:52:22] - Reading 1462000000 reads at chr16:721420 and skipping 1077371938
+NOTICE [2024/10/25 03:09:59] - Reading 1750000 variants at chr16:2389326, Skipping 0, Missing 0.
+NOTICE [2024/10/25 03:14:50] - Reading 1466000000 reads at chr16:1962631 and skipping 1080467932
+NOTICE [2024/10/25 03:32:20] - Reading 1471000000 reads at chr16:1964288 and skipping 1084593741
+NOTICE [2024/10/25 03:58:27] - Reading 1477000000 reads at chr16:1964453 and skipping 1089268586
+NOTICE [2024/10/25 04:02:39] - Reading 1478000000 reads at chr16:1964484 and skipping 1090041011
+NOTICE [2024/10/25 04:14:28] - Reading 1481000000 reads at chr16:2514101 and skipping 1092312553
+NOTICE [2024/10/25 04:27:30] - Reading 1484000000 reads at chr16:2757514 and skipping 1094665612
+NOTICE [2024/10/25 04:36:19] - Reading 1485000000 reads at chr16:2775474 and skipping 1095281329
+NOTICE [2024/10/25 04:42:24] - Reading 1486000000 reads at chr16:3065795 and skipping 1096016002
+NOTICE [2024/10/25 04:57:24] - Reading 1490000000 reads at chr16:3767757 and skipping 1099239415
+NOTICE [2024/10/25 05:04:10] - Reading 1491000000 reads at chr16:4505570 and skipping 1099925638
+NOTICE [2024/10/25 05:11:58] - Reading 1760000 variants at chr16:5448355, Skipping 0, Missing 0.
+NOTICE [2024/10/25 05:14:14] - Reading 1770000 variants at chr16:6884922, Skipping 0, Missing 0.
+NOTICE [2024/10/25 05:17:29] - Reading 1780000 variants at chr16:8832052, Skipping 0, Missing 0.
+NOTICE [2024/10/25 05:20:30] - Reading 1493000000 reads at chr16:9105805 and skipping 1101216933
+NOTICE [2024/10/25 05:27:07] - Reading 1790000 variants at chr16:11891344, Skipping 0, Missing 0.
+NOTICE [2024/10/25 05:28:09] - Reading 1494000000 reads at chr16:11548007 and skipping 1101815322
+NOTICE [2024/10/25 05:36:53] - Reading 1496000000 reads at chr16:11734018 and skipping 1103356921
+NOTICE [2024/10/25 05:51:50] - Reading 1498000000 reads at chr16:12075021 and skipping 1104752978
+NOTICE [2024/10/25 05:55:07] - Reading 1800000 variants at chr16:16024763, Skipping 0, Missing 0.
+NOTICE [2024/10/25 06:21:36] - Reading 1505000000 reads at chr16:18783096 and skipping 1110174950
+NOTICE [2024/10/25 06:38:32] - Reading 1508000000 reads at chr16:18784767 and skipping 1112576772
+NOTICE [2024/10/25 07:03:07] - Reading 1512000000 reads at chr16:18784800 and skipping 1115709949
+NOTICE [2024/10/25 07:55:12] - Reading 1520000000 reads at chr16:18788117 and skipping 1121872452
+NOTICE [2024/10/25 08:14:10] - Reading 1523000000 reads at chr16:18789041 and skipping 1124157417
+NOTICE [2024/10/25 08:27:02] - Reading 1810000 variants at chr16:22277282, Skipping 0, Missing 0.
+NOTICE [2024/10/25 08:47:00] - Reading 1531000000 reads at chr16:25107017 and skipping 1129834783
+NOTICE [2024/10/25 08:48:38] - Reading 1820000 variants at chr16:27901638, Skipping 0, Missing 0.
+NOTICE [2024/10/25 09:07:47] - Reading 1538000000 reads at chr16:30067235 and skipping 1134838907
+NOTICE [2024/10/25 09:11:57] - Reading 1539000000 reads at chr16:30067484 and skipping 1134879335
+NOTICE [2024/10/25 09:14:36] - Reading 1540000000 reads at chr16:30094838 and skipping 1135301458
+NOTICE [2024/10/25 09:18:27] - Reading 1543000000 reads at chr16:30378445 and skipping 1137710698
+NOTICE [2024/10/25 09:24:08] - Reading 1545000000 reads at chr16:30952879 and skipping 1139087531
+NOTICE [2024/10/25 09:29:31] - Reading 1548000000 reads at chr16:31711596 and skipping 1141257995
+NOTICE [2024/10/25 09:32:45] - Reading 1550000000 reads at chr16:48363246 and skipping 1142606855
+NOTICE [2024/10/25 09:33:44] - Reading 1830000 variants at chr16:49261839, Skipping 0, Missing 0.
+NOTICE [2024/10/25 09:43:51] - Reading 1553000000 reads at chr16:53492480 and skipping 1144565873
+NOTICE [2024/10/25 09:44:39] - Reading 1840000 variants at chr16:54948402, Skipping 0, Missing 0.
+slurmstepd: error: *** JOB 63186854 ON drove-1 CANCELLED AT 2024-10-25T09:48:45 DUE TO TIME LIMIT ***
