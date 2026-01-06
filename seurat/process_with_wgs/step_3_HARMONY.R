@@ -10,16 +10,16 @@ library(clustree)
 plan("sequential")  # force all future-based code to run in the main R session
 options(future.globals.maxSize = Inf)  # optional, but harmless if plan is sequential
 
-log_file   <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/log_file_rawmerge_allres12_pca15.txt"
-output_pdf <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_output_file_allres12_pca15.pdf"
-save_rds   <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotated_all_res12_pca15_noann.rds"
+log_file   <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/log_file_rawmerge_allres1_pca15.txt"
+output_pdf <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_output_file_allres1_pca15.pdf"
+save_rds   <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotated_all_res1_pca15_noann.rds"
 
 sink(log_file, split = TRUE); on.exit({try(sink(), TRUE)}, add=TRUE)
 pdf(output_pdf, width=8, height=6); on.exit({if (dev.cur()>1) try(dev.off(), TRUE)}, add=TRUE)
 
 paths <- c(
-  "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/2_merged_lanes_wgs/batch1_paths_combined_wdj.rds",
-  "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/2_merged_lanes_wgs/batch2_paths_combined_wdj.rds",
+"/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/2_merged_lanes_wgs/batch1_paths_combined_wdj.rds",
+"/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/2_merged_lanes_wgs/batch2_paths_combined_wdj.rds",
 "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/2_merged_lanes_wgs/batch3_paths_combined_wdj.rds",
 "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/2_merged_lanes_wgs/batch4_paths_combined_wdj.rds",
 "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/2_merged_lanes_wgs/batch5_paths_combined_wdj.rds")
@@ -58,7 +58,7 @@ merged_obj <- RunHarmony(
 
 # 4) Graph/UMAP on Harmony
 merged_obj <- FindNeighbors(merged_obj, reduction="harmony", dims=1:15, verbose=FALSE) %>%
-  FindClusters(resolution=1.2, verbose=FALSE) %>%
+  FindClusters(resolution=1.0, verbose=FALSE) %>%
   RunUMAP(reduction="harmony", dims=1:15,
           reduction.name="rna.umap", reduction.key="rnaUMAP_", verbose=FALSE)
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=harmonize_scRNAseq
+#SBATCH --job-name=res1.0pcs15
 #SBATCH --account=genome-center-grp
 #SBATCH --partition=high
 #SBATCH --time=48:00:00
