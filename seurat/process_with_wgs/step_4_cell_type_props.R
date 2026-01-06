@@ -32,7 +32,7 @@ library(dplyr)
 # Aggregate cell counts (no age/gender yet)
 celltype_props <- seur_obj@meta.data %>%
   dplyr::filter(!is.na(NCR.ID)) %>%
-  dplyr::count(NCR.ID, validated_TB_status, sctype_classification_man, name = "n_cells") %>%
+  dplyr::count(NCR.ID, validated_TB_status, sctype_classification_man2, name = "n_cells") %>%
   dplyr::group_by(NCR.ID) %>%
   dplyr::mutate(
     total_cells = sum(n_cells),
@@ -54,12 +54,10 @@ donor_meta <- seur_obj@meta.data %>%
 #Join donor metadata onto proportions
 celltype_props <- celltype_props %>%
   dplyr::left_join(donor_meta, by = "NCR.ID")
-
+library(tidyverse)
 #rea in abx data
-abx<- read.csv("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/extra_metadata.tsv") %>%
-  rename(
-    days_antibiotics = lab_date_2_trtment_strt
-  ) %>%
+abx<- read_delim("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/extra_metadata.tsv") %>%
+  dplyr::rename(days_antibiotics = lab_date_2_trtment_strt) %>%
   mutate(
     validated_case_status = factor(validated_case_status),
     days_antibiotics = as.numeric(days_antibiotics)
@@ -71,7 +69,7 @@ celltype_props <- celltype_props %>%
  
 # filter to an cell type as a test
 df_plot <- celltype_props %>%
-  filter(sctype_classification_man == "Natural killer  cells")
+  filter(sctype_classification_man2 == "Natural killer  cells")
 
 ggplot(
   df_plot,
@@ -117,7 +115,7 @@ ggplot(
     title = "NK cell proportions by case status"
   )
 
-celltypes <- sort(unique(celltype_props$sctype_classification_man))
+celltypes <- sort(unique(celltype_props$sctype_classification_man2))
 
 #function to automate beeswarm 
 plot_celltype_beeswarm <- function(
@@ -131,7 +129,7 @@ plot_celltype_beeswarm <- function(
 ) {
   
   df_plot <- data %>%
-    dplyr::filter(sctype_classification_man == celltype)
+    dplyr::filter(sctype_classification_man2 == celltype)
   
   is_continuous <- is.numeric(df_plot[[color_var]]) || is.integer(df_plot[[color_var]])
   
@@ -200,7 +198,7 @@ plot_celltype_beeswarm(
 ###GeNerate Age Beeswarm ##########
 ####################################
 
-pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_age.pdf", width = 6, height = 4)
+pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_v2_res1_age.pdf", width = 6, height = 4)
 
 for (ct in celltypes) {
   p <- plot_celltype_beeswarm(
@@ -220,7 +218,7 @@ dev.off()
 ###GeNerate abxBeeswarm ##########
 ####################################
 
-pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_days_antibiotics.pdf", width = 6, height = 4)
+pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_days_antibiotics_v2_res1.pdf", width = 6, height = 4)
 
 for (ct in celltypes) {
   p <- plot_celltype_beeswarm(
@@ -238,7 +236,7 @@ dev.off()
 ####################################
 ###GeNerate gender Beeswarm ##########
 ####################################
-pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_gender.pdf", width = 6, height = 4)
+pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_gender_v2_res1.pdf", width = 6, height = 4)
 
 for (ct in celltypes) {
   p <- plot_celltype_beeswarm(
@@ -257,7 +255,7 @@ dev.off()
 ##horizontal bar plot
 
 summary_df <- celltype_props %>%
-  group_by(validated_TB_status, sctype_classification_man) %>%
+  group_by(validated_TB_status, sctype_classification_man2) %>%
   summarise(
     mean_prop = mean(prop, na.rm = TRUE),
     .groups = "drop"
@@ -267,13 +265,13 @@ summary_df <- celltype_props %>%
   )
 
 celltype_order <- summary_df %>%
-  group_by(sctype_classification_man) %>%
+  group_by(sctype_classification_man2) %>%
   summarise(overall_mean = mean(percent)) %>%
   arrange(overall_mean) %>%
-  pull(sctype_classification_man)
+  pull(sctype_classification_man2)
 
-summary_df$sctype_classification_man <-
-  factor(summary_df$sctype_classification_man, levels = celltype_order)
+summary_df$sctype_classification_man2 <-
+  factor(summary_df$sctype_classification_man2, levels = celltype_order)
 
 #cell type prportions plus inset!
 
@@ -281,7 +279,7 @@ p_main <- ggplot(
   summary_df,
   aes(
     x = percent,
-    y = sctype_classification_man,
+    y = sctype_classification_man2,
     fill = validated_TB_status
   )
 ) +
@@ -308,17 +306,17 @@ p_main <- ggplot(
   )
 
 #select the cell types with low proportions
-bottom_types <- head(levels(summary_df$sctype_classification_man), 3)
+bottom_types <- head(levels(summary_df$sctype_classification_man2), 3)
 
 summary_df_small <- summary_df %>%
-  dplyr::filter(sctype_classification_man %in% bottom_types)
+  dplyr::filter(sctype_classification_man2 %in% bottom_types)
 
 #plot  the cell types with low proportions as an inset
 p_inset <- ggplot(
   summary_df_small,
   aes(
     x = percent,
-    y = sctype_classification_man,
+    y = sctype_classification_man2,
     fill = validated_TB_status
   )
 ) +
@@ -361,7 +359,7 @@ barplots_celltypes_inset <- p_main + inset_element(
 
  
 ggsave(
-  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/barplots_celltypes_inset.png",
+  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/barplots_celltypes_inset_v2_res1.png",
   plot     = barplots_celltypes_inset,
   width    = 18,
   height   = 6,
@@ -369,9 +367,23 @@ ggsave(
   dpi      = 300
 )
 
+meta <- seur_obj@meta.data %>%
+  dplyr::filter(!is.na(NCR.ID), !is.na(sctype_classification_man2))
+
+overall_props <- meta %>%
+  dplyr::count(sctype_classification_man2, name = "n_cells") %>%
+  dplyr::mutate(
+    total_cells = sum(n_cells),
+    prop = n_cells / total_cells,
+    percent = 100 * prop
+  ) %>%
+  dplyr::arrange(dplyr::desc(prop))
+
+
+
 
 ############
-#poxsibly delte below
+#possibly delte below
 #########
 #   sctype vs TB status — bar charts (counts + proportions)
 

@@ -35,9 +35,9 @@ export NUMEXPR_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 
 # # --- Paths ---
-#R_SCRIPT="/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/process_with_wgs/step_3_HARMONY.R"
+R_SCRIPT="/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/process_with_wgs/step_3_HARMONY.R"
 #R_SCRIPT="/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/process_with_wgs/step3a_tune-params.R"
-R_SCRIPT="/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/step_3_manual_sctype.R"
+#R_SCRIPT="/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/step_3_manual_sctype.R"
 
 
 # echo "[$(date)] Starting step_3_HARMONY.R on ${SLURM_NODELIST}"

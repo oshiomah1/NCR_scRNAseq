@@ -11,7 +11,7 @@ library(patchwork)
 
 
 #seur_obj <- readRDS("quobyte/from-lssc0/projects/NCR_scRNAseq/results/seurat/harmony_22jan_.rds") #reg processing + wnn
-seur_obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotated_all_res6_pca15.rds") #reg processing + wnn
+seur_obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotated_all_res12_pca15_noann.rds") #reg processing + wnn
 
 print("read file")
 head(seur_obj)
@@ -24,7 +24,9 @@ source("https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/R/sct
 
 # DB file
 #db_ <- "https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/ScTypeDB_short.xlsx";
-db_ <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/ScTypeDB_immune_only.xlsx"
+#db_ <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/ScTypeDB_immune_only.xlsx"
+db_ <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctrype_noTCR.xlsx"
+
 tissue <- "Immune system" # e.g. Immune system,Pancreas,Liver,Eye,Kidney,Brain,Lung,Adrenal,Heart,Intestine,Muscle,Placenta,Spleen,Stomach,Thymus 
 
 # prepare gene sets
@@ -57,15 +59,25 @@ sctype_scores <- cL_resutls %>% group_by(cluster) %>% top_n(n = 1, wt = scores)
 sctype_scores$type[as.numeric(as.character(sctype_scores$scores)) < sctype_scores$ncells/4] <- "Unknown"
 print(sctype_scores[,1:3])
 
-seur_obj@meta.data$sctype_classification_man = ""
+seur_obj@meta.data$sctype_classification_man2 = ""
 for(j in unique(sctype_scores$cluster)){
   cl_type = sctype_scores[sctype_scores$cluster==j,]; 
-  seur_obj@meta.data$sctype_classification_man[seur_obj@meta.data$seurat_clusters == j] = as.character(cl_type$type[1])
+  seur_obj@meta.data$sctype_classification_man2[seur_obj@meta.data$seurat_clusters == j] = as.character(cl_type$type[1])
 }
 
+umap = DimPlot(seur_obj, reduction = "rna.umap", label = TRUE, repel = TRUE, group.by = 'sctype_classification_man2')        
 DimPlot(seur_obj, reduction = "rna.umap", label = TRUE, repel = TRUE, group.by = 'sctype_classification_man')        
+library(ggplot2)
 
-saveRDS(seur_obj, file = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/raw_merge_all_batches_harm_sc_annotated_all_res6_pca15.rds")
+ 
+
+ggsave(
+  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/rna_umap_sctype_man_res1.png",
+  plot = umap,
+  width = 14, height = 7, units = "in", dpi = 300
+)
+
+#saveRDS(seur_obj, file = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/raw_merge_all_batches_harm_sc_annotated_all_res6_pca15.rds")
 
 print("file_saved")
 
@@ -115,7 +127,7 @@ top4 <- cL_resutls %>%
 library(ggplot2)
 
 
-pdf("ScType_top4_per_cluster_pcs15_new.pdf", width = 7, height = 5)
+pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_top4_per_cluster_pcs15_res1_notcr.pdf", width = 7, height = 5)
  
 
 for (cl in sort(unique(top4$cluster))) {
@@ -137,3 +149,34 @@ for (cl in sort(unique(top4$cluster))) {
 
 dev.off()
 
+DotPlot(
+  seur_obj,
+  features = c("NKG7","GNLY","PRF1","GZMB","KLRD1","FCGR3A",
+               "TRAC","TRBC1","CD3D","CD3E","LCK",
+               "CD8A","CD8B"), group.by = "sctype_classification_man2"
+) + RotatedAxis()
+DotPlot(seur_obj, features = tcell_rna_markers, group.by = "sctype_classification_man2",
+        cols = c("lightgrey", "blue"), assay = "RNA") +
+  RotatedAxis() +
+  ggtitle("Canonical T cell marker expression")
+DotPlot(seur_obj, features = nkcell_rna_markers, group.by = "sctype_classification_man2",
+        cols = c("lightgrey", "blue"), assay = "RNA") +
+  RotatedAxis() +
+  ggtitle("Canonical NK cell marker expression")
+DotPlot(seur_obj, features = bcell_rna_markers, group.by = "sctype_classification_man2",
+        cols = c("lightgrey", "blue"), assay = "RNA") +
+  RotatedAxis() +
+  ggtitle("Canonical B cell marker expression")
+
+DotPlot(seur_obj, features = monocytes_rna_markers, group.by = "sctype_classification_man2",
+        cols = c("lightgrey", "blue"), assay = "RNA") +
+  RotatedAxis() +
+  ggtitle("Canonical Monocyte marker expression")
+DotPlot(seur_obj, features = adt_markers, group.by = "sctype_classification_man2",
+        cols = c("lightgrey", "blue"), assay = "RNA") +
+  RotatedAxis() +
+  ggtitle("adt marker expression")
+DotPlot(seur_obj, features = adt_markers, group.by = "sctype_classification_man2",
+        cols = c("lightgrey", "blue"), assay = "ADT") +
+  RotatedAxis() +
+  ggtitle("Canonical Cell surface protein marker expression")
