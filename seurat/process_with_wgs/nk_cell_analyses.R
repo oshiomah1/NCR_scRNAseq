@@ -401,6 +401,6 @@ p_ctrl <- DotPlot(
 
 p_case | p_ctrl
 
-reran basic NK cell stuff using saras sctype suggestions, visualized ANXA2R expression on its own and by case ctrl 
+
 
  
