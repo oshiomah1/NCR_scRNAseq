@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=res1.0pcs15
+#SBATCH --job-name=res12pcs35
 #SBATCH --account=genome-center-grp
 #SBATCH --partition=high
 #SBATCH --time=48:00:00

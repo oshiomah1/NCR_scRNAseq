@@ -21,7 +21,7 @@ seur_obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results
 
 
 DefaultAssay(seur_obj) <- "RNA"
-head(seur_obj@meta.data[, c("donor_id", "validated_TB_status", "sctype_classification_man")])
+head(seur_obj@meta.data[, c("donor_id", "validated_TB_status", "sctype_classification_man6")])
 table(seur_obj$validated_TB_status)
 table(seur_obj$donor_id)
 table(seur_obj$sctype_classification_man)
@@ -32,7 +32,7 @@ library(dplyr)
 # Aggregate cell counts (no age/gender yet)
 celltype_props <- seur_obj@meta.data %>%
   dplyr::filter(!is.na(NCR.ID)) %>%
-  dplyr::count(NCR.ID, validated_TB_status, sctype_classification_man2, name = "n_cells") %>%
+  dplyr::count(NCR.ID, validated_TB_status, sctype_classification_man6, name = "n_cells") %>%
   dplyr::group_by(NCR.ID) %>%
   dplyr::mutate(
     total_cells = sum(n_cells),
@@ -69,7 +69,7 @@ celltype_props <- celltype_props %>%
  
 # filter to an cell type as a test
 df_plot <- celltype_props %>%
-  filter(sctype_classification_man2 == "Natural killer  cells")
+  filter(sctype_classification_man6 == "Natural killer  cells")
 
 ggplot(
   df_plot,
@@ -129,7 +129,7 @@ plot_celltype_beeswarm <- function(
 ) {
   
   df_plot <- data %>%
-    dplyr::filter(sctype_classification_man2 == celltype)
+    dplyr::filter(sctype_classification_man6 == celltype)
   
   is_continuous <- is.numeric(df_plot[[color_var]]) || is.integer(df_plot[[color_var]])
   
@@ -255,7 +255,7 @@ dev.off()
 ##horizontal bar plot
 
 summary_df <- celltype_props %>%
-  group_by(validated_TB_status, sctype_classification_man2) %>%
+  group_by(validated_TB_status, sctype_classification_man6) %>%
   summarise(
     mean_prop = mean(prop, na.rm = TRUE),
     .groups = "drop"
@@ -265,13 +265,13 @@ summary_df <- celltype_props %>%
   )
 
 celltype_order <- summary_df %>%
-  group_by(sctype_classification_man2) %>%
+  group_by(sctype_classification_man6) %>%
   summarise(overall_mean = mean(percent)) %>%
   arrange(overall_mean) %>%
-  pull(sctype_classification_man2)
+  pull(sctype_classification_man6)
 
-summary_df$sctype_classification_man2 <-
-  factor(summary_df$sctype_classification_man2, levels = celltype_order)
+summary_df$sctype_classification_man6 <-
+  factor(summary_df$sctype_classification_man6, levels = celltype_order)
 
 #cell type prportions plus inset!
 
@@ -279,7 +279,7 @@ p_main <- ggplot(
   summary_df,
   aes(
     x = percent,
-    y = sctype_classification_man2,
+    y = sctype_classification_man6,
     fill = validated_TB_status
   )
 ) +

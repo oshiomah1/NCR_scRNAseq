@@ -224,15 +224,22 @@ dir.create(out_top4, recursive = TRUE, showWarnings = FALSE)
 dir.create(out_bar,  recursive = TRUE, showWarnings = FALSE)
 
 # --- 7 ScType databases (label -> path) --- #add a no tcr only
+# dbs <- list(
+#   baseline                     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/ScTypeDB_immune_only.xlsx",
+#   nktlikenegedit        = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_nktlikenegedit.xlsx",
+#   no_isg                       = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg.xlsx",
+#   no_mega                      = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_mega.xlsx",
+#   no_isg_no_mega               = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_no_mega.xlsx",
+#   no_isg_nktlikenegedit        = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_nktlikenegedit.xlsx",
+#   no_isg_nktlikepozedit        = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_nktlikepozedit.xlsx",
+#   no_isg_nktlikenegedit_nomega = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_nktlikenegedit_nomega.xlsx"
+# )
+
 dbs <- list(
-  baseline                     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/ScTypeDB_immune_only.xlsx",
-  nktlikenegedit        = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_nktlikenegedit.xlsx",
-  no_isg                       = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg.xlsx",
-  no_mega                      = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_mega.xlsx",
-  no_isg_no_mega               = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_no_mega.xlsx",
-  no_isg_nktlikenegedit        = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_nktlikenegedit.xlsx",
-  no_isg_nktlikepozedit        = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_nktlikepozedit.xlsx",
-  no_isg_nktlikenegedit_nomega = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/notcr/no_isg_nktlikenegedit_nomega.xlsx"
+  default                     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/default.xlsx",
+  cd8_nk                      = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/cd8_nk.xlsx",
+  cd8_nk_tcr_neg              = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/cd8_nk_tcr_neg.xlsx",
+  tcr_neg                     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/tcr_neg.xlsx"
 )
 
 # store cluster-level results in @misc so the final Seurat has everything
@@ -349,7 +356,8 @@ for (db_label in names(dbs)) {
 }
 
 # ---- save ONE final Seurat with all 7 label columns ----
-final_rds <- file.path(outdir_base, paste0(prefix, "_Seurat_ScType_7DB.rds"))
-saveRDS(seur_obj, final_rds)
-
+final_rds <- file.path(outdir_base, paste0(prefix, "_Seurat_ScType_4DB.rds"))
+saveRDS(seur_obj, final_rds, version = 2)
+ 
 message("ALL DONE. Saved combined Seurat: ", final_rds)
+ 

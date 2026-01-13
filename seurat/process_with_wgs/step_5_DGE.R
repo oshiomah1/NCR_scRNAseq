@@ -50,7 +50,7 @@ meta$celltype_simplified <- dplyr::case_when(
   meta$sctype_classification_man2 %in% c("Gamma Delta-T cells") ~ "Gamma delta T cells",
   
   # B
-  meta$sctype_classification_man2 %in% c("Naive B cells", "Plasma B cells") ~ "B cells",
+  meta$sctype_classification_man2 %in% c("Naive B cells", "Plasma B cells") ~ "B cells", #
   
   # Myeloid: monocytes
   meta$sctype_classification_man2 %in% c("Classical Monocytes", "Non-classical monocytes") ~ "Monocytes",

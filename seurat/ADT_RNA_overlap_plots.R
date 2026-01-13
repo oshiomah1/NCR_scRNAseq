@@ -15,14 +15,13 @@ library(patchwork)
 seur_obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotated_all.rds") #reg processing + wnn
 
 markers <-read.csv("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/Markers.csv", na.strings = c("", "NA"))
-#head(markers)
-#markers[[marker == "CD19"]]$ADT_name
+ 
 tcell_rna_markers <- na.omit(markers[markers$Cell.type == "T-cells", "RNA_name"])
 bcell_rna_markers <- na.omit(markers[markers$Cell.type == "B-cell", "RNA_name"])
 monocytes_rna_markers <- na.omit(markers[markers$Cell.type == "Monocytes", "RNA_name"])
 nkcell_rna_markers <- na.omit(markers[markers$Cell.type == "NK-cells", "RNA_name"])
 dendritic_cell_rna_markers <- na.omit(markers[markers$Cell.type == "Dendritic-Cell", "RNA_name"])
-
+adt_markers <- na.omit(markers$ADT_name)
 
 tcell_rna_markers 
 bcell_rna_markers
