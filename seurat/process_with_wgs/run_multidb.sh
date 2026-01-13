@@ -3,8 +3,8 @@
 #SBATCH --account=genome-center-grp
 #SBATCH --partition=high
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=120G
-#SBATCH --time=10:00:00
+#SBATCH --mem=64G
+#SBATCH --time=5:00:00
 #SBATCH --array=1-4
 #SBATCH --output=/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/process_with_wgs/logs/%x_%j.out
 #SBATCH --error=/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/process_with_wgs/logs/%x_%j.err

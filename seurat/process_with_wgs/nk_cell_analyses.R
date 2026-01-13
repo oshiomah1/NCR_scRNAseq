@@ -4,13 +4,14 @@ suppressPackageStartupMessages({
   library(ggplot2)
 })
 set.seed(626)
-ee
-#install.packages("ggalluvial")  # if needed
+
+ 
 library(dplyr)
 library(ggplot2)
 library(ggalluvial)
+library(patchwork)
 
-rds_path <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/raw_merge_all_batches_harm_annotated_all_res12_pca35_noann_Seurat_ScType_7DB.rds"
+rds_path <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out/raw_merge_all_batches_harm_annotated_all_res12_pca35_noann_Seurat_ScType_4DB.rds"
 #rds_path <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_noTCRres12_pca15/raw_merge_all_batches_harm_annotated_all_res12_pca15_noann_Seurat_ScType_7DB.rds"
 obj <- readRDS(rds_path)
 
@@ -43,8 +44,9 @@ table(meta$has_tcr, meta$has_bcr)
 # suspicious multiplets: both TCR and BCR
 mean(meta$has_tcr & meta$has_bcr)
 
+
 # now: enrichment by  ScType labels
-prop_by_type <- with(meta, tapply(has_tcr, sctype_no_isg , mean))
+prop_by_type <- with(meta, tapply(has_tcr, sctype_cd8_nk , mean))
 sort(prop_by_type, decreasing = TRUE)
 
 prop_by_type_bcr <- with(meta, tapply(has_bcr, sctype_baseline, mean))
@@ -56,12 +58,8 @@ sort(prop_by_type_bcr, decreasing = TRUE)
 #################################
 
 
-cols <- c(
-  "sctype_baseline",
-  "sctype_nktlikenegedit",
-  "sctype_no_isg"
-)
-
+#cols <- c( "sctype_baseline","sctype_nktlikenegedit","sctype_no_isg")
+cols <-c("sctype_cd8_nk_tcr_neg", "sctype_cd8_nk", "sctype_default", "sctype_tcr_neg")
 lump_n <- 12  # keep top 12 labels per column
 
 meta2 <- meta %>%
@@ -135,7 +133,7 @@ batch_col    <- "group"
 table(obj@meta.data[[celltype_col]]) %>% sort(decreasing = TRUE) %>% head(30)
 
 #subset to nk cells
-nk <- subset(obj, subset = sctype_nktlikenegedit == "Natural killer  cells")
+nk <- subset(obj, subset = sctype_cd8_nk_tcr_neg == "Natural killer  cells")
 #nk <- subset(obj, subset = sctype_baseline == "Natural killer  cells")
 #nk <- subset(obj, subset = sctype_no_isg == "Natural killer  cells")
 
@@ -258,7 +256,7 @@ features_use <- list(
 DotPlot(nk, features = features_use) + RotatedAxis()
 
 DotPlot(nk, features = c("NKsigA_1","NKsigB_1","NKsigC_1"),
-        group.by = "sctype_nktlikenegedit") + RotatedAxis()
+        group.by = "sctype_cd8_nk") + RotatedAxis()
 scores <- nk@meta.data[, c("NKsigA_1","NKsigB_1","NKsigC_1")]
 colnames(scores) <- c("A","B","C")
 
@@ -271,13 +269,12 @@ nk$nk_subset3 <- ifelse(delta >= margin, top, "Ambiguous")
 nk$nk_subset3 <- factor(nk$nk_subset3, levels = c("A","B","C","Ambiguous"))
 
 table(nk$nk_subset3)
-DimPlot(nk, reduction = "umap_nk", group.by = "nk_subset3") + ggtitle("NK subset assignment (A/B/C)")
+DimPlot(nk, reduction = "umap_nk", group.by = "nk_subset3") + ggtitle("NK subset assignment (CD8/NK(TCR-)")
 
 
 
 
-
-meta <- obj@meta.data %>%
+meta <- nk@meta.data %>%
   mutate(
     donor  = .data[[donor_col]],
     status = .data[[status_col]]
@@ -302,7 +299,7 @@ ggplot(donor_counts, aes(x = status, y = prop)) +
   geom_jitter(aes(color = Gender), width = 0.15, height = 0, alpha = 0.7) +
   facet_wrap(~ nk_subset3) +
   theme_bw(base_size = 12) +
-  labs(title = "Donor-level NK subset proportions (within NK)", x = NULL, y = "Proportion") +
+  labs(title = "Donor-level NK subset proportions (CD8/NK(TCR-))", x = NULL, y = "Proportion") +
   stat_compare_means(method = "wilcox.test", label = "p.format")
 
 # Horizontal bars of group means (your earlier style)
@@ -338,12 +335,72 @@ DotPlot(
 
 
 
+DotPlot(
+  nk,
+  features = "ANXA2R",
+  group.by = "nk_subset3"   # change if you want another x-axis grouping
+) + RotatedAxis()
 
 
 
-sctype_baseline
+
+DotPlot(
+  obj,
+  features = "ANXA2R",
+  group.by = "sctype_default","sctype_cd8_nk_tcr_neg", "sctype_cd8_nk"
+) +
+  RotatedAxis()
+
+FeaturePlot(
+  obj,
+  features = "ANXA2R",
+  reduction = "rna.umap",
+  cols = c("lightgrey", "red")
+)
 
 
+p1 <- DotPlot(
+  obj,
+  features = "ANXA2R",
+  group.by = "sctype_default"
+) + RotatedAxis() + ggtitle("Default annotation")
 
+p2 <- DotPlot(
+  obj,
+  features = "ANXA2R",
+  group.by = "sctype_cd8_nk_tcr_neg"
+) + RotatedAxis() + ggtitle("CD8/NK (TCR−)")
+
+p3 <- DotPlot(
+  obj,
+  features = "ANXA2R",
+  group.by = "sctype_cd8_nk"
+) + RotatedAxis() + ggtitle("CD8/NK")
+
+ 
+p1 | p2 | p3
+p1 | p2 
+
+
+p_case <- DotPlot(
+  subset(obj, subset = validated_TB_status == "2weekCase"),
+  features = "ANXA2R",
+  group.by = "sctype_default"
+) +
+  RotatedAxis() +
+  ggtitle("Default annotation— Cases")
+
+p_ctrl <- DotPlot(
+  subset(obj, subset = validated_TB_status == "ctrl"),
+  features = "ANXA2R",
+  group.by = "sctype_default"
+) +
+  RotatedAxis() +
+  ggtitle("Default annotation — Controls")
+
+
+p_case | p_ctrl
+
+reran basic NK cell stuff using saras sctype suggestions, visualized ANXA2R expression on its own and by case ctrl 
 
  
