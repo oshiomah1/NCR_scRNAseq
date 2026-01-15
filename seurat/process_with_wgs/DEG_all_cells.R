@@ -408,4 +408,50 @@ library(dplyr)
 
 
 # GO via MSigDB (C5): BP / MF / CC
+# --- Gene Ontology collections from MSigDB (C5) ---
+go_bp <- msigdbr(species = "Homo sapiens", category = "C5", subcategory = "GO:BP") %>%
+  select(gs_name, gene_symbol)
+go_mf <- msigdbr(species = "Homo sapiens", category = "C5", subcategory = "GO:MF") %>%
+  select(gs_name, gene_symbol)
+go_cc <- msigdbr(species = "Homo sapiens", category = "C5", subcategory = "GO:CC") %>%
+  select(gs_name, gene_symbol)
+
+pathways_go_bp <- split(go_bp$gene_symbol, go_bp$gs_name)
+pathways_go_mf <- split(go_mf$gene_symbol, go_mf$gs_name)
+pathways_go_cc <- split(go_cc$gene_symbol, go_cc$gs_name)
+
+#   run separately  - i'm using ranks made from deseq
+fg_go_bp <- run_fgsea_one(ranks, pathways_go_bp, minSize = 15, maxSize = 500) %>%
+  mutate(ontology = "BP")
+fg_go_mf <- run_fgsea_one(ranks, pathways_go_mf, minSize = 15, maxSize = 500) %>%
+  mutate(ontology = "MF")
+fg_go_cc <- run_fgsea_one(ranks, pathways_go_cc, minSize = 15, maxSize = 500) %>%
+  mutate(ontology = "CC")
+
+fg_go_all <- bind_rows(fg_go_bp, fg_go_mf, fg_go_cc)
+
+ 
+
+top_go <- fg_go_all %>%
+  filter(!is.na(padj)) %>%
+  group_by(ontology) %>%
+  arrange(padj) %>%
+  slice_head(n = 15) %>%
+  ungroup() %>%
+  mutate(term = factor(pathway, levels = rev(unique(pathway))))
+
+p_go <- ggplot(top_go, aes(x = term, y = NES)) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~ ontology, scales = "free_y") +
+  theme_bw(base_size = 11) +
+  labs(title = "GO GSEA (Global PBMC pseudobulk)", x = NULL, y = "NES")
+
+p_go
+
+ggsave(
+  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/global_GO.png",
+  plot = p_go,
+  width = 22, height = 8, units = "in", dpi = 300
+)
 
