@@ -14,7 +14,7 @@ library(patchwork)
 rds_path <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out/raw_merge_all_batches_harm_annotated_all_res12_pca35_noann_Seurat_ScType_4DB.rds"
 #rds_path <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_noTCRres12_pca15/raw_merge_all_batches_harm_annotated_all_res12_pca15_noann_Seurat_ScType_7DB.rds"
 obj <- readRDS(rds_path)
-
+obj <- seur_obj
 meta <- obj@meta.data
 #################################
 #########VDJ CHECK###############
@@ -46,7 +46,7 @@ mean(meta$has_tcr & meta$has_bcr)
 
 
 # now: enrichment by  ScType labels
-prop_by_type <- with(meta, tapply(has_tcr, sctype_cd8_nk , mean))
+prop_by_type <- with(meta, tapply(has_tcr, sctype_default , mean))
 sort(prop_by_type, decreasing = TRUE)
 
 prop_by_type_bcr <- with(meta, tapply(has_bcr, sctype_baseline, mean))
@@ -133,8 +133,8 @@ batch_col    <- "group"
 table(obj@meta.data[[celltype_col]]) %>% sort(decreasing = TRUE) %>% head(30)
 
 #subset to nk cells
-nk <- subset(obj, subset = sctype_cd8_nk_tcr_neg == "Natural killer  cells")
-#nk <- subset(obj, subset = sctype_baseline == "Natural killer  cells")
+#nk <- subset(obj, subset = sctype_cd8_nk_tcr_neg == "Natural killer  cells")
+nk <- subset(obj, subset = sctype_default == "Natural killer  cells")
 #nk <- subset(obj, subset = sctype_no_isg == "Natural killer  cells")
 
  
@@ -154,14 +154,7 @@ DimPlot(nk, reduction = "umap_nk", group.by = "seurat_clusters", label = TRUE) +
 
 DimPlot(nk, reduction = "umap_nk", group.by = batch_col) +
   ggtitle("NK UMAP colored by batch")
-#nk2  <- c("IL2RB", "TPT1", "GPR183", "CD44", "TCF7",
-              #   "IL7R", "KLRC1", "XCL1", "SELL", "CMC1",
-               #  "XCL2", "GZMK", "CD2")
-#nk3  <- c("CD52", "S100A4", "LGALS1", "PTMS", "LINC01871",
-             #   "VIM", "S100A6", "ITGB1", "IL32", "CCL5",
-             #   "GZMH", "CD3E", "KLRC2")
-#nk1  <- c("PLAC8", "CD38", "CCL4", "CHST2", "FCER1G", "IGFBP7", "AKR1C3", "SPON2")
-
+ 
 
 nk1 <- c(
   "CD160",
@@ -269,7 +262,7 @@ nk$nk_subset3 <- ifelse(delta >= margin, top, "Ambiguous")
 nk$nk_subset3 <- factor(nk$nk_subset3, levels = c("A","B","C","Ambiguous"))
 
 table(nk$nk_subset3)
-DimPlot(nk, reduction = "umap_nk", group.by = "nk_subset3") + ggtitle("NK subset assignment (CD8/NK(TCR-)")
+DimPlot(nk, reduction = "umap_nk", group.by = "nk_subset3") + ggtitle("NK subset assignment (Default)")
 
 
 
@@ -401,6 +394,57 @@ p_ctrl <- DotPlot(
 
 p_case | p_ctrl
 
+
+ 
+
+p_case_vln <- VlnPlot(
+  subset(obj, subset = validated_TB_status == "2weekCase"),
+  features = "ANXA2R",
+  group.by = "sctype_default",
+  pt.size = 0
+) + ggtitle("ANXA2R — Cases") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_ctrl_vln <- VlnPlot(
+  subset(obj, subset = validated_TB_status == "ctrl"),
+  features = "ANXA2R",
+  group.by = "sctype_default",
+  pt.size = 0
+) + ggtitle("ANXA2R — Controls") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_case_vln | p_ctrl_vln
+
+Idents(obj) <- "sctype_default"
+
+p_split <- VlnPlot(
+  obj_filt,
+  features = "ANXA2R",
+  group.by = "sctype_default",
+  split.by = "validated_TB_status",
+  pt.size = 0
+) + ggtitle("ANXA2R — split by TB status") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ 
+ p_split
+ggsave(
+  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/p_split_violin.png",
+  plot = p_split,
+  width = 13,
+  height = 5,
+  dpi = 300
+)
+
+p_split <- VlnPlot(
+  obj,
+  features = "ANXA2R",
+  group.by = "sctype_default",
+  split.by = "validated_TB_status",
+  pt.size = 0,
+  fill.by = "split"
+) +
+  scale_fill_manual(values = c("2weekCase" = "#E76F51", "ctrl" = "#2A9D8F")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_split
 
 
  

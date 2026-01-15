@@ -13,7 +13,7 @@ library(patchwork)
 
 #seur_obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/raw_merge_all_batches_annotated.rds") #reg processing + wnn
 seur_obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotated_all.rds") #reg processing + wnn
-
+seur_obj = obj
 markers <-read.csv("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/Markers.csv", na.strings = c("", "NA"))
  
 tcell_rna_markers <- na.omit(markers[markers$Cell.type == "T-cells", "RNA_name"])
@@ -80,7 +80,7 @@ DotPlot(seur_obj, features = adt_markers, group.by = "sctype_classification", as
 DimPlot(
   object = seur_obj,
   reduction = use_red,
-  group.by = "sctype_classification",
+  group.by = "sctype_default",
   label = TRUE,             # place labels at centroids
   repel = TRUE,             # spread labels if many groups
   label.size = 3.5
@@ -94,7 +94,7 @@ DimPlot(seur_obj, reduction = 'rna.umap', group.by = "sctype_classification",  l
 DimPlot(
   seur_obj,
   reduction = "rna.umap",
-  group.by = "sctype_classification3",
+  group.by = "sctype_default",
   label = TRUE,
   repel = TRUE,
   label.size = 5.5
@@ -125,7 +125,7 @@ for (f in adt_markers) {
 }
 
 
-pdf("ADT_markers_rnaUMAP.pdf", width = 6, height = 5)
+pdf("ADT_markers_rnaUMAP_v2.pdf", width = 6, height = 5)
 
 for (f in adt_markers) {
   p <- FeaturePlot(
@@ -144,11 +144,11 @@ dev.off()
 
 library(ggrepel)   # for nice non-overlapping labels
 
-group_col <- "sctype_classification3"   # your metadata column
+group_col <- "sctype_default"   # your metadata column
 red <- "rna.umap"
 
 # helper that adds labels to a FeaturePlot
-featureplot_with_labels <- function(obj, feature, group_col = "sctype_classification3", reduction = "rna.umap") {
+featureplot_with_labels <- function(obj, feature, group_col = "sctype_default", reduction = "rna.umap") {
   # 1) Base plot: ADT overlay on RNA UMAP
   DefaultAssay(obj) <- "ADT"
   p <- FeaturePlot(
@@ -178,7 +178,9 @@ featureplot_with_labels <- function(obj, feature, group_col = "sctype_classifica
 
 # Example for a single marker
 featureplot_with_labels(seur_obj, "Hu.CD94")
-featureplot_with_labels(seur_obj, "Hu.CD94")
+
+# Example for a single marker
+featureplot_with_labels(seur_obj, "ANXA2R") 
 
 
 # multi-page PDF with labels for all ADT markers
