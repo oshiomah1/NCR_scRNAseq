@@ -30,10 +30,10 @@ table(seur_obj$sctype_classification_man)
 library(dplyr)
 
 # Aggregate cell counts (no age/gender yet)
-celltype_props <- seur_obj@meta.data %>%
-  dplyr::filter(!is.na(NCR.ID)) %>%
-  dplyr::count(NCR.ID, validated_TB_status, sctype_classification_man6, name = "n_cells") %>%
-  dplyr::group_by(NCR.ID) %>%
+celltype_props <-  obj@meta.data %>%
+  dplyr::filter(!is.na(donor_id)) %>%
+  dplyr::count(donor_id, validated_TB_status, sctype_default, name = "n_cells") %>%
+  dplyr::group_by(donor_id) %>%
   dplyr::mutate(
     total_cells = sum(n_cells),
     prop = n_cells / total_cells
@@ -42,7 +42,7 @@ celltype_props <- seur_obj@meta.data %>%
 
 # Next we extract donor-level metadata (age, gender, etc.)
 
-donor_meta <- seur_obj@meta.data %>%
+donor_meta <- obj@meta.data %>%
   dplyr::filter(!is.na(NCR.ID)) %>%
   dplyr::select(
     NCR.ID,
@@ -115,7 +115,7 @@ ggplot(
     title = "NK cell proportions by case status"
   )
 
-celltypes <- sort(unique(celltype_props$sctype_classification_man2))
+celltypes <- sort(unique(celltype_props$sctype_default))
 
 #function to automate beeswarm 
 plot_celltype_beeswarm <- function(
@@ -129,7 +129,7 @@ plot_celltype_beeswarm <- function(
 ) {
   
   df_plot <- data %>%
-    dplyr::filter(sctype_classification_man6 == celltype)
+    dplyr::filter(sctype_default == celltype)
   
   is_continuous <- is.numeric(df_plot[[color_var]]) || is.integer(df_plot[[color_var]])
   
@@ -198,7 +198,7 @@ plot_celltype_beeswarm(
 ###GeNerate Age Beeswarm ##########
 ####################################
 
-pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_v2_res1_age.pdf", width = 6, height = 4)
+pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_age_pc20_6db_res12.pdf", width = 6, height = 4)
 
 for (ct in celltypes) {
   p <- plot_celltype_beeswarm(
@@ -218,7 +218,7 @@ dev.off()
 ###GeNerate abxBeeswarm ##########
 ####################################
 
-pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_days_antibiotics_v2_res1.pdf", width = 6, height = 4)
+pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_abx_pc20_6db_res12.pdf", width = 6, height = 4)
 
 for (ct in celltypes) {
   p <- plot_celltype_beeswarm(
@@ -236,7 +236,7 @@ dev.off()
 ####################################
 ###GeNerate gender Beeswarm ##########
 ####################################
-pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_gender_v2_res1.pdf", width = 6, height = 4)
+pdf("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/cell_type_proportions/Beeswarm_all_celltypes_gender_pc20_6db_res12.pdf", width = 6, height = 4)
 
 for (ct in celltypes) {
   p <- plot_celltype_beeswarm(

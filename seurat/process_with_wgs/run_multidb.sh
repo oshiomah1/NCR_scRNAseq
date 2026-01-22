@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=multi_db
+#SBATCH --job-name=multi_dboscar
 #SBATCH --account=genome-center-grp
 #SBATCH --partition=high
 #SBATCH --cpus-per-task=4
@@ -18,5 +18,5 @@ mamba activate /quobyte/bmhenngrp/conda_envs/seuratt
 set -euo pipefail
 
 Rscript /quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/process_with_wgs/multi_db_run.R \
-  /quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotated_all_res12_pca15_noann.rds \
-  /quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_res12_pca15
+  /quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotated_all_res12_pca20_noann.rds \
+  /quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_res12_pca15_oscar

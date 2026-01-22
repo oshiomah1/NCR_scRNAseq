@@ -5,11 +5,9 @@ library(tidyr)
 library(ggplot2)
 library(tidyverse)
 #seur_obj <-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/raw_merge_all_batches_harm_sc_annotated_all_res6_pca15.rds")
-seur_obj <-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out/raw_merge_all_batches_harm_annotated_all_res12_pca35_noann_Seurat_ScType_4DB.rds")
+seur_obj <-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_res12_pca15_oscar/raw_merge_all_batches_harm_annotated_all_res12_pca20_noann_Seurat_ScType_6DB_oscar.rds")
  
-# Join layers INSIDE the RNA assay
-seur_obj[["RNA"]] <- JoinLayers(seur_obj[["RNA"]])
-
+ 
 #read in meta data from suerat object and select relevant columns
 meta <- seur_obj@meta.data %>%
   tibble::rownames_to_column("cell") %>%   # add barcodes
@@ -154,7 +152,7 @@ adt_pb_NK <- pseudobulk_adt(seur_obj, "NK cells")
 ###pseudobluk function made more flexible(new)
 pseudobulk_rna_by_meta <- function(
     obj,
-    meta_col,
+    meta_col= "celltype_simplified",
     meta_value,
     donor_col = "NCR.ID"
 ) {
@@ -185,31 +183,10 @@ pseudobulk_rna_by_meta <- function(
 }
 
 
-
-
-pseudobulk_all <- function(obj, donor_col = "NCR.ID") {
-  
-  counts <- GetAssayData(
-    obj,
-    assay = "RNA",
-    layer = "counts"
-  )
-  
-  donors <- factor(obj@meta.data[[donor_col]])
-  donor_mm <- Matrix::sparse.model.matrix(~ donors - 1)
-  colnames(donor_mm) <- levels(donors)
-  
-  counts %*% donor_mm
-}
-
-pb_all_cells <- pseudobulk_all(obj)
-
-
-
 # restrict donors per group before DE
 min_cells <- 50
 
-valid_donors <- obj@meta.data %>%
+valid_donors <- seur_obj@meta.data %>%
   count(NCR.ID, sctype_default) %>%
   filter(n >= min_cells)
 
@@ -220,6 +197,18 @@ donor_meta <- seur_obj@meta.data %>%
   filter(!is.na(NCR.ID)) %>%
   select(
     NCR.ID,
+    donor_id,
+    validated_TB_status,
+    Age.,
+    Gender,
+    group
+  ) %>%
+  distinct()
+
+donor_meta2 <- seur_obj@meta.data %>%
+  select(
+    NCR.ID,
+    donor_id,
     validated_TB_status,
     Age.,
     Gender,
@@ -237,6 +226,8 @@ unique_cell_types <- unique(meta$celltype_simplified)
 pseudobulk_rna_results <- lapply(unique_cell_types, function(ct) {
   pseudobulk_rna(seur_obj, ct)
 })
+
+
 names(pseudobulk_rna_results) <- unique_cell_types
 
 # ADT pseudobulk
@@ -246,7 +237,7 @@ pseudobulk_adt_results <- lapply(unique_cell_types, function(ct) {
 names(pseudobulk_adt_results) <- unique_cell_types
 
 
-saveRDS(pseudobulk_rna_results, file = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/pseudobulk/pseudobulk_rna_results.rds")
+saveRDS(pseudobulk_rna_results, file = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/pseudobulk/pseudobulk_rna_results_20pcs.rds")
 saveRDS(pseudobulk_adt_results, file = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/pseudobulk/pseudobulk_adt_results.rds")
 
 #####################################################################
@@ -377,7 +368,7 @@ run_deseq_one_celltype <- function(
     design_formula = ~ Age_c + Gender + group + validated_TB_status,
     min_donors_per_group = 2,
     top_n = 50,
-    outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/deseq_res1"
+    outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/deseq_20pcs"
 ) {
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
   
@@ -528,20 +519,37 @@ n_workers <- 8
 plan(multisession, workers = n_workers)   # or plan(multicore) on Linux if allowed
 
 ct_vector = c("NKT-like","CD8 T cells","NK cells","CD4 T cells", "ISG-high" )               
-            
+ 
+
 all_results <- future_lapply(names(pseudobulk_rna_results), function(ct) {
   run_deseq_one_celltype(
-    counts = pseudobulk_rna_results[[ct]],
-    celltype = ct,
+    counts = pseudobulk_rna_results[[unique_cell_types]],
+    celltype = unique_cell_types,
     donor_meta = donor_meta,
-    outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/DESeq2_pseudobulk_by_celltype",
+    outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/DESeq2_pseudobulk_by_celltypepc20",
     top_n = 50,
     min_donors_per_group = 2
   )
 }, future.seed = TRUE)
-#be careful here there is an eerror , te code mkes the plots though
+
+all_results <- future_lapply(names(pseudobulk_rna_results), function(ct) {
+  run_deseq_one_celltype(
+    counts     = pseudobulk_rna_results[[ct]],
+    celltype   = ct,
+    donor_meta = donor_meta,
+    outdir     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/DESeq2_pseudobulk_by_celltypepc20",
+    top_n      = 50,
+    min_donors_per_group = 2
+  )
+}, future.seed = TRUE)
+
 names(all_results) <- names(pseudobulk_rna_results)
-names(all_results) <-ct_vector
+
+
+
+#be careful here there is an eerror , te code mkes the plots though
+#names(all_results) <- names(pseudobulk_rna_results)
+#names(all_results) <-ct_vector
 # optional: clean up
 plan(sequential)
 
@@ -682,8 +690,11 @@ nesfdr = ggplot(plot_df, aes(x = celltype, y = pathway)) +
     color = "NES"
   )
 ggsave(
-  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_dotplot_NES_FDR_hallmarkonly.png",
+  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_dotplot_NES_FDR_hallmarkonlypc20.png",
   plot = nesfdr,
   width = 12, height = 8, units = "in", dpi = 300
 )
+
+
  
+  

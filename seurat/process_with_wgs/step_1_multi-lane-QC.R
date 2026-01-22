@@ -12,14 +12,13 @@ set.seed(411)
 options(future.globals.maxSize = 3 * 1024^3)
 
 ## ---- Config you change here ----
-batch_id  <- "batch5"     # e.g. "batch1", "batch2", ...
-vireo_tag <- "vireob5_with_WGS"    # e.g. "vireob1_with_WGS", "vireob2_with_WGS" "vireob3_with_WGS" "vireob1_with_WGS" 
+batch_id  <- "batch2"     # e.g. "batch1", "batch2", ...
+vireo_tag <- "vireob2_with_WGS"    # e.g. "vireob1_with_WGS", "vireob2_with_WGS" "vireob3_with_WGS" "vireob1_with_WGS" 
 #replicates <- c("TBSS01","TBSS02","TBSS03","TBSS04")
-
-#replicates <- c("TBSS05", "TBSS06", "TBSS07", "TBSS08")  
+replicates <- c("TBSS05", "TBSS06", "TBSS07", "TBSS08")  
 #replicates <- c("TBSS09", "TBSS10", "TBSS11", "TBSS12")  
 #replicates <- c("TBSS13", "TBSS14", "TBSS15", "TBSS16") 
-replicates <- c("TBSS17", "TBSS18", "TBSS19", "TBSS20") 
+#replicates <- c("TBSS17", "TBSS18", "TBSS19", "TBSS20") 
 
  
 ## Base paths

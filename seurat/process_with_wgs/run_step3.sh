@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=res12pcs35
+#SBATCH --job-name=res12pcs20
 #SBATCH --account=genome-center-grp
 #SBATCH --partition=high
-#SBATCH --time=48:00:00
+#SBATCH --time=21:00:00
 #SBATCH --cpus-per-task=12
-#SBATCH --mem=180G
+#SBATCH --mem=140G
 #SBATCH --output=/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/process_with_wgs/logs/%x_%j.out
 #SBATCH --error=/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/scripts/seurat/process_with_wgs/logs/%x_%j.err
 #SBATCH --mail-user=oshiomah1234@gmail.com

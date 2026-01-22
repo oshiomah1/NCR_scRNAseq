@@ -5,10 +5,9 @@ library(dplyr)
 library(ggplot2)
 library(tidyverse)
 #seur_obj <-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/raw_merge_all_batches_harm_sc_annotated_all_res6_pca15.rds")
-seur_obj <-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out/raw_merge_all_batches_harm_annotated_all_res12_pca35_noann_Seurat_ScType_4DB.rds")
+seur_obj <-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_res12_pca15_oscar/raw_merge_all_batches_harm_annotated_all_res12_pca20_noann_Seurat_ScType_6DB_oscar.rds")
 
-# Join layers INSIDE the RNA assay
-#seur_obj[["RNA"]] <- JoinLayers(seur_obj[["RNA"]])
+ 
 
 #read in meta data from suerat object and select relevant columns
 meta <- seur_obj@meta.data %>%
@@ -23,13 +22,14 @@ meta <- seur_obj@meta.data %>%
   ) %>%
   dplyr::filter(!is.na(NCR.ID))
 
+unique(meta$sctype_default)
 
 meta$celltype_simplified <- dplyr::case_when(
   # CD4
   meta$sctype_default %in% c("Naive CD4+ T cells", "Memory CD4+ T cells") ~ "CD4 T cells",
   
   # CD8
-  meta$sctype_default %in% c("Naive CD8+ T cells", "#Effector CD8+ T cells") ~ "CD8 T cells",
+  meta$sctype_default %in% c("Naive CD8+ T cells", "Effector CD8+ T cells") ~ "CD8 T cells",
   
   # NKT-like (often TCR+ cytotoxic; keep separate from NK/CD8 if you're tracking it)
   meta$sctype_default %in% c("CD8+ NKT-like cells") ~ "NKT-like",
@@ -38,10 +38,10 @@ meta$celltype_simplified <- dplyr::case_when(
   meta$sctype_default %in% c("Natural killer  cells") ~ "NK cells",
   
   # gamma delta
-  meta$sctype_default %in% c("Gamma Delta-T cells") ~ "Gamma delta T cells",
+  meta$sctype_default %in% c("γδ-T cells") ~ "Gamma delta T cells",
   
   # B
-  meta$sctype_default %in% c("Naive B cells", "Memory B cells") ~ "B cells", # 
+  meta$sctype_default %in% c("Naive B cells", "Plasma B cells") ~ "B cells", # 
   
   # Myeloid: monocytes
   meta$sctype_default %in% c("Classical Monocytes", "Non-classical monocytes") ~ "Monocytes",
@@ -67,9 +67,9 @@ meta$celltype_simplified <- dplyr::case_when(
 seur_obj$celltype_simplified <- meta$celltype_simplified[
   match(colnames(seur_obj), meta$cell)
 ]
-
+unique(meta$celltype_simplified)
 table(seur_obj$celltype_simplified, useNA = "ifany")
-#joimnm count layers across the batches
+#join count layers across the batches
 seur_obj[["RNA"]] <- JoinLayers(
   object = seur_obj[["RNA"]],
   layers = "counts"
@@ -77,7 +77,7 @@ seur_obj[["RNA"]] <- JoinLayers(
 
 
 
-###pseudobluk function made more flexible(new)
+###pseudobulk function made more flexible (new)
 pseudobulk_rna_by_meta <- function(
     obj,
     meta_col,
@@ -215,16 +215,8 @@ run_deseq_one_celltype <- function(
   )
   
   # gene filter
-  dds <- dds[rowSums(DESeq2::counts(dds) >= 10) >= 10, ]
-  #n <- ncol(dds)
-  
-  #min_donors <- ceiling(0.5 * n)  # “at least half”
-  #dds <- dds[rowSums(DESeq2::counts(dds) > 0) >= min_donors, ]
-  
-  #n <- ncol(dds)
-  #dds <- dds[rowSums(DESeq2::counts(dds) > 0) > floor(0.5 * n), ]
-  
-  
+  #dds <- dds[rowSums(DESeq2::counts(dds) >= 10) >= 10, ]
+  dds <- dds[rowSums(DESeq2::counts(dds) >= 10) >= 70, ]
   dds <- DESeq2::DESeq(dds)
   
   res <- DESeq2::results(dds, contrast = c(status_col, case_level, ref_level))
@@ -310,7 +302,7 @@ res_global <- run_deseq_one_celltype(
   counts = pb_all_cells,
   celltype = "Global_PBMC", #label
   donor_meta = donor_meta,
-  outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/deseq_global_default"
+  outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/deseq_global_20pcs_strict10_70"
 )
 
 library(fgsea)
@@ -454,4 +446,5 @@ ggsave(
   plot = p_go,
   width = 22, height = 8, units = "in", dpi = 300
 )
+
 

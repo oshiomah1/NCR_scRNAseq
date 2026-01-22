@@ -4,122 +4,24 @@ suppressPackageStartupMessages({
   library(ggplot2)
 })
 set.seed(626)
-
+ 
  
 library(dplyr)
-library(ggplot2)
+ 
 library(ggalluvial)
 library(patchwork)
+rds_path <-"/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_res12_pca15_oscar/raw_merge_all_batches_harm_annotated_all_res12_pca20_noann_Seurat_ScType_6DB_oscar.rds"
 
-rds_path <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out/raw_merge_all_batches_harm_annotated_all_res12_pca35_noann_Seurat_ScType_4DB.rds"
-#rds_path <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_noTCRres12_pca15/raw_merge_all_batches_harm_annotated_all_res12_pca15_noann_Seurat_ScType_7DB.rds"
+ #rds_path <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_noTCRres12_pca15/raw_merge_all_batches_harm_annotated_all_res12_pca15_noann_Seurat_ScType_7DB.rds"
+
 obj <- readRDS(rds_path)
-obj <- seur_obj
+ 
 meta <- obj@meta.data
-#################################
-#########VDJ CHECK###############
-#################################
-
-
-
-# sanity: what VDJ-related columns exist?
-grep("cdr3|clonotype|chain|vdj|tcr|bcr", colnames(meta), ignore.case = TRUE, value = TRUE)
-
-# define "has TCR" and "has BCR" using whichever fields you actually have
-has_tcr <- rep(FALSE, nrow(meta))
-has_bcr <- rep(FALSE, nrow(meta))
-
-if ("t_clonotype_id" %in% colnames(meta)) has_tcr <- has_tcr | !is.na(meta$t_clonotype_id) & meta$t_clonotype_id != ""
-if ("t_cdr3s_aa"     %in% colnames(meta)) has_tcr <- has_tcr | !is.na(meta$t_cdr3s_aa)     & meta$t_cdr3s_aa != ""
-
-if ("b_clonotype_id" %in% colnames(meta)) has_bcr <- has_bcr | !is.na(meta$b_clonotype_id) & meta$b_clonotype_id != ""
-if ("b_cdr3s_aa"     %in% colnames(meta)) has_bcr <- has_bcr | !is.na(meta$b_cdr3s_aa)     & meta$b_cdr3s_aa != ""
-
-meta$has_tcr <- has_tcr
-meta$has_bcr <- has_bcr
-
-# overall counts
-table(meta$has_tcr, meta$has_bcr)
-
-# suspicious multiplets: both TCR and BCR
-mean(meta$has_tcr & meta$has_bcr)
-
-
-# now: enrichment by  ScType labels
-prop_by_type <- with(meta, tapply(has_tcr, sctype_default , mean))
-sort(prop_by_type, decreasing = TRUE)
-
-prop_by_type_bcr <- with(meta, tapply(has_bcr, sctype_baseline, mean))
-sort(prop_by_type_bcr, decreasing = TRUE)
-
-
-#################################
-#########VDJ CHECK###############
-#################################
-
-
-#cols <- c( "sctype_baseline","sctype_nktlikenegedit","sctype_no_isg")
-cols <-c("sctype_cd8_nk_tcr_neg", "sctype_cd8_nk", "sctype_default", "sctype_tcr_neg")
-lump_n <- 12  # keep top 12 labels per column
-
-meta2 <- meta %>%
-  select(all_of(cols)) %>%
-  mutate(across(everything(), \(x) {
-    x <- as.character(x)
-    keep <- names(sort(table(x), decreasing = TRUE))[1:min(lump_n, length(unique(x)))]
-    ifelse(x %in% keep, x, "Other")
-  }))
-
-ggplot(meta2,
-       aes(axis1 = sctype_baseline,
-           axis2 = sctype_nktlikenegedit,
-           axis3 = sctype_no_isg
-          )) +
-  geom_alluvium(aes(fill = sctype_baseline), alpha = 0.8) +
-  geom_stratum(color = "grey30") +
-  geom_text(stat = "stratum", aes(label = after_stat(stratum)), size = 3) +
-  scale_x_discrete(limits = cols, expand = c(.02, .02)) +
-  theme_bw(base_size = 12) +
-  theme(axis.title = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank()) +
-  labs(fill = "Baseline")
-
-
-library(ggplot2)
-library(ggalluvial)
-
-p <- ggplot(meta2,
-            aes(axis1 = sctype_baseline,
-                axis2 = sctype_nktlikenegedit,
-                axis3 = sctype_no_isg)) +
-  geom_alluvium(aes(fill = sctype_baseline), alpha = 0.8) +
-  geom_stratum(color = "grey30") +
-  geom_text(stat = "stratum", aes(label = after_stat(stratum)), size = 3) +
-  scale_x_discrete(limits = c("sctype_baseline","sctype_nktlikenegedit","sctype_no_isg"),
-                   expand = c(.02, .02)) +
-  theme_bw(base_size = 12) +
-  theme(axis.title = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank()) +
-  labs(fill = "Baseline")
-
-# Save it much wider
-ggsave("alluvial_wide.png", plot = p, width = 16, height = 6, units = "in", dpi = 300)
-# or PDF (nice for text)
-ggsave("alluvial_wide.pdf", plot = p, width = 16, height = 6, units = "in")
-
   
-  #################################
-  #########VDJ CHECK###############
-  #################################
   
+  # 
 
-
-
-
-
-
+ 
 
 DefaultAssay(obj) <- "RNA"
 Reductions(obj)
@@ -138,7 +40,7 @@ nk <- subset(obj, subset = sctype_default == "Natural killer  cells")
 #nk <- subset(obj, subset = sctype_no_isg == "Natural killer  cells")
 
  
-
+print(ElbowPlot(nk, ndims = 60))
 # Use harmony embedding if present
 reduction_use <- if ("harmony" %in% Reductions(nk)) "harmony" else "pca"
 reduction_use
@@ -149,6 +51,30 @@ dims_use <- 1:35
 nk <- FindNeighbors(nk, reduction = reduction_use, dims = dims_use)
 nk <- FindClusters(nk, resolution = 0.6)   # try 0.3–1.0 if you want
 nk <- RunUMAP(nk, reduction = reduction_use, dims = dims_use, reduction.name = "umap_nk")
+
+
+nk <- subset(obj, subset = sctype_default == "Natural killer  cells")
+DefaultAssay(nk) <- "RNA"
+
+nk <- FindVariableFeatures(nk, nfeatures = 2000)
+nk <- ScaleData(nk)
+nk <- RunPCA(nk, npcs = 60)
+
+nk <- harmony::RunHarmony(nk, group.by.vars = "batch", reduction = "pca")
+nk<- RunHarmony(
+  object = nk,
+  group.by.vars = "batch",
+  dims.use = 1:20,
+  assay.use = "RNA",
+  plot_convergence = TRUE
+)
+
+
+nk <- FindNeighbors(nk, reduction = "harmony", dims = 1:20)
+nk <- FindClusters(nk, resolution = 0.6)
+nk <- RunUMAP(nk, reduction = "harmony", dims = 1:20, reduction.name = "umap_nk")
+
+
 DimPlot(nk, reduction = "umap_nk", group.by = "seurat_clusters", label = TRUE) +
   ggtitle("NK-only reclustering (Harmony space)")
 

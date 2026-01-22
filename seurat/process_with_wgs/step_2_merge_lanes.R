@@ -38,6 +38,22 @@ batch_paths_list <- list(
   )
 )
 
+# batch_paths_list <- list(
+#   batch4_paths = c(
+#     "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/1_QC_wgs/batch4/TBSS13/TBSS13_qc_only_vdj.rds",
+#     "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/1_QC_wgs/batch4/TBSS14/TBSS14_qc_only_vdj.rds",
+#     "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/1_QC_wgs/batch4/TBSS15/TBSS15_qc_only_vdj.rds",
+#     "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/1_QC_wgs/batch4/TBSS16/TBSS16_qc_only_vdj.rds"
+#   ),
+#   batch5_paths = c(
+#     "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/1_QC_wgs/batch5/TBSS17/TBSS17_qc_only_vdj.rds",
+#     "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/1_QC_wgs/batch5/TBSS18/TBSS18_qc_only_vdj.rds",
+#     "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/1_QC_wgs/batch5/TBSS19/TBSS19_qc_only_vdj.rds",
+#     "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/1_QC_wgs/batch5/TBSS20/TBSS20_qc_only_vdj.rds"
+#   )
+# )
+
+
 outdir <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/2_merged_lanes_wgs"
 dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 

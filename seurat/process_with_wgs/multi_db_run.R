@@ -239,7 +239,10 @@ dbs <- list(
   default                     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/default.xlsx",
   cd8_nk                      = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/cd8_nk.xlsx",
   cd8_nk_tcr_neg              = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/cd8_nk_tcr_neg.xlsx",
-  tcr_neg                     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/tcr_neg.xlsx"
+  tcr_neg                     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/tcr_neg.xlsx",
+  oscar                     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/oscar.xlsx",
+  oscar_neg                 = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/data/sctype_dbs/oscar_plus_neg_markers_cd8.xlsx"
+  
 )
 
 # store cluster-level results in @misc so the final Seurat has everything
@@ -356,7 +359,7 @@ for (db_label in names(dbs)) {
 }
 
 # ---- save ONE final Seurat with all 7 label columns ----
-final_rds <- file.path(outdir_base, paste0(prefix, "_Seurat_ScType_4DB.rds"))
+final_rds <- file.path(outdir_base, paste0(prefix, "_Seurat_ScType_6DB_oscar.rds"))
 saveRDS(seur_obj, final_rds, version = 2)
  
 message("ALL DONE. Saved combined Seurat: ", final_rds)
