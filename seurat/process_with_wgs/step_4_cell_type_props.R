@@ -7,7 +7,8 @@ library(ggbeeswarm)
 
 # Load your seur_object
 #obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/3_harmonize_batches_wgs/raw_merge_all_batches_harm_annotatedbatch1_2.rds")
-seur_obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/raw_merge_all_batches_harm_sc_annotated_all_res6_pca15.rds") #reg processing + wnn
+#seur_obj <- readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/seurat/raw_merge_all_batches_harm_sc_annotated_all_res6_pca15.rds") #reg processing + wnn
+seur_obj <-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/ScType_multiDB_out_res12_pca15_oscar/raw_merge_all_batches_harm_annotated_all_res12_pca20_noann_Seurat_ScType_6DB_oscar.rds")
 
 # #RE ANNOTATE AFTER CHANGING TO CD 16
 # source("https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/R/sctype_wrapper.R")
@@ -26,14 +27,14 @@ table(seur_obj$validated_TB_status)
 table(seur_obj$donor_id)
 table(seur_obj$sctype_classification_man)
 
-
+obj=seur_obj
 library(dplyr)
 
 # Aggregate cell counts (no age/gender yet)
 celltype_props <-  obj@meta.data %>%
   dplyr::filter(!is.na(donor_id)) %>%
-  dplyr::count(donor_id, validated_TB_status, sctype_default, name = "n_cells") %>%
-  dplyr::group_by(donor_id) %>%
+  dplyr::count(NCR.ID, validated_TB_status, sctype_default, name = "n_cells") %>%
+  dplyr::group_by(NCR.ID) %>%
   dplyr::mutate(
     total_cells = sum(n_cells),
     prop = n_cells / total_cells
@@ -43,7 +44,7 @@ celltype_props <-  obj@meta.data %>%
 # Next we extract donor-level metadata (age, gender, etc.)
 
 donor_meta <- obj@meta.data %>%
-  dplyr::filter(!is.na(NCR.ID)) %>%
+  dplyr::filter(!is.na(donor_id)) %>%
   dplyr::select(
     NCR.ID,
     Age.,
@@ -69,7 +70,7 @@ celltype_props <- celltype_props %>%
  
 # filter to an cell type as a test
 df_plot <- celltype_props %>%
-  filter(sctype_classification_man6 == "Natural killer  cells")
+  filter(sctype_default == "Natural killer  cells")
 
 ggplot(
   df_plot,
@@ -174,7 +175,8 @@ plot_celltype_beeswarm <- function(
       title = paste(celltype, plot_title_suffix)
     )
 }
-
+df_plot <- df_plot %>%
+  dplyr::filter(!is.na(NCR.ID))
 ####################################
 #########test run ###########
 ####################################
@@ -189,10 +191,51 @@ plot_celltype_beeswarm(
 plot_celltype_beeswarm(
   data = df_plot,
   celltype = "Natural killer  cells",
+  color_var = "days_antibiotics",
+  color_label = "Days on Antibiotics",
+  continuous_palette = c("navy", "white", "firebrick")
+)
+
+plot_celltype_beeswarm(
+  data = df_plot,
+  celltype = "Natural killer  cells",
   color_var = "Gender",
   color_label = "Sex"
 )
 ####################################
+library(dplyr)
+library(purrr)
+
+# abx cor
+cases_df <- df_plot %>%
+  filter(validated_case_status == "2weekCase") %>%          # or validated_TB_status != "ctrl"
+  filter(!is.na(days_antibiotics), !is.na(prop)) %>%
+  group_by(sctype_default) %>%
+  summarise(
+    n = n(),
+    rho = if (n >= 3) cor(days_antibiotics, prop, method = "spearman") else NA_real_,
+    p_value = if (n >= 3) cor.test(days_antibiotics, prop, method = "spearman")$p.value else NA_real_,
+    .groups = "drop"
+  ) %>%
+  mutate(p_adj = p.adjust(p_value, method = "BH")) %>%
+  arrange(p_adj)
+
+cases_df
+library(ggplot2)
+library(dplyr)
+
+df_plot %>%
+  filter(validated_case_status == "2weekCase") %>%          # or validated_TB_status != "ctrl"
+  filter(!is.na(days_antibiotics), !is.na(prop)) %>%
+  ggplot(aes(x = days_antibiotics, y = prop)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Cases only: NK cell proportion vs days on antibiotics",
+    x = "Days on antibiotics",
+    y = "Cell-type proportion"
+  ) +
+  theme_bw()
 
 ####################################
 ###GeNerate Age Beeswarm ##########
@@ -618,5 +661,12 @@ VlnPlot(seur_obj,
        group.by = "sctype_classification",
        pt.size = 0, ncol = 1)
 #########
+# temp
 
+DotPlot(seur_obj, features = c("CD19"), group.by = label_col, assay = "RNA") +
+  RotatedAxis() + ggtitle(paste0("."))  +
+  dotplot_redblue_theme
 
+devtools::install_github("satijalab/seurat", "seurat5")
+devtools::install_github("satijalab/seurat-data", "seurat5")
+devtools::install_github("satijalab/azimuth", "seurat5")

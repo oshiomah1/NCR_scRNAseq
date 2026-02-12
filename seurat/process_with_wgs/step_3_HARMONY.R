@@ -32,15 +32,50 @@ cat("Cells:", ncol(merged_obj), "\n")
 cat("Batches:", paste(unique(merged_obj$batch), collapse=", "), "\n")
 DefaultAssay(merged_obj) <- "RNA"
  
- 
+# --- genes to exclude from HVG/PCA (keep them in object) ---
+all_genes <- rownames(merged_obj)
+
+# TCR/BCR (works for standard gene symbols like TRAC, TRBC1, IGKC, IGHG1, etc.)
+tcr_bcr_genes <- grep("^(TR[ABDG][CDVJ]|IG[HKL][CDVJ])", all_genes, value = TRUE)
+
+# Sex-linked / sex-marker genes (edit/add if you want)
+sex_genes <- intersect(all_genes, c(
+  "XIST","TSIX",
+  "RPS4Y1","DDX3Y","UTY","KDM5D","EIF1AY","ZFY","PRKY","TMSB4Y","NLGN4Y","AMELY","SRY"
+))
+
+exclude_genes <- unique(c(tcr_bcr_genes, sex_genes))
+cat("Excluding from HVG/PCA:", length(exclude_genes), "genes\n")
+
 
 # 2) RNA preprocessing
 
-merged_obj <- NormalizeData(merged_obj, normalization.method="LogNormalize", verbose=FALSE) %>%
-  FindVariableFeatures(selection.method="vst", nfeatures=2000, verbose=FALSE) %>%
-  ScaleData(verbose=FALSE) %>%
-  RunPCA(npcs=50, reduction.name="pca", reduction.key="PCA_", verbose=FALSE)
+# merged_obj <- NormalizeData(merged_obj, normalization.method="LogNormalize", verbose=FALSE) %>%
+#   FindVariableFeatures(selection.method="vst", nfeatures=2500, verbose=FALSE) %>%
+#   ScaleData(verbose=FALSE) %>%
+#   RunPCA(npcs=50, reduction.name="pca", reduction.key="PCA_", verbose=FALSE)
 
+##
+merged_obj <- NormalizeData(merged_obj, normalization.method="LogNormalize", verbose=FALSE)
+merged_obj <- FindVariableFeatures(merged_obj, selection.method="vst", nfeatures=2500, verbose=FALSE)
+
+# remove those genes from the variable features
+VariableFeatures(merged_obj) <- setdiff(VariableFeatures(merged_obj), exclude_genes)
+
+# scale only the (filtered) HVGs
+merged_obj <- ScaleData(merged_obj, features = VariableFeatures(merged_obj), verbose=FALSE)
+
+# PCA on the same HVGs
+merged_obj <- RunPCA(
+  merged_obj,
+  features = VariableFeatures(merged_obj),
+  npcs=50,
+  reduction.name="pca",
+  reduction.key="PCA_",
+  verbose=FALSE
+)
+
+##
 print(ElbowPlot(merged_obj, ndims = 60))
 
 # Before Harmony

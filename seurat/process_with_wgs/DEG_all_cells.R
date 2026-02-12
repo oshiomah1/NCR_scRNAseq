@@ -75,41 +75,6 @@ seur_obj[["RNA"]] <- JoinLayers(
   layers = "counts"
 )
 
-
-
-###pseudobulk function made more flexible (new)
-pseudobulk_rna_by_meta <- function(
-    obj,
-    meta_col,
-    meta_value,
-    donor_col = "NCR.ID"
-) {
-  
-  stopifnot(meta_col %in% colnames(obj@meta.data))
-  
-  cells_use <- WhichCells(
-    obj,
-    expression = .data[[meta_col]] == meta_value
-  )
-  
-  if (length(cells_use) == 0) {
-    stop("No cells found for ", meta_col, " = ", meta_value)
-  }
-  
-  counts <- GetAssayData(
-    obj,
-    assay = "RNA",
-    layer = "counts"
-  )[, cells_use, drop = FALSE]
-  
-  donors <- factor(obj@meta.data[cells_use, donor_col])
-  
-  donor_mm <- Matrix::sparse.model.matrix(~ donors - 1)
-  colnames(donor_mm) <- levels(donors)
-  
-  counts %*% donor_mm
-}
-
 pseudobulk_all <- function(obj, donor_col = "NCR.ID") {
   
   counts <- GetAssayData(
@@ -142,6 +107,9 @@ obj_filt <- subset(
 )
 
 pb_all_cells <- pseudobulk_all(obj_filt)
+saveRDS(pb_all_cells, "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/pseudobulkobject/global_pseudo.rds")
+
+#pb_all_cells<-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/pseudobulkobject/global_pseudo.rds")
 
 
 donor_meta <- obj_filt@meta.data %>%
@@ -154,6 +122,8 @@ library(DESeq2)
 library(EnhancedVolcano)
 library(pheatmap)
 
+#design_formula = ~ Age_c + Gender + group + validated_TB_status
+#status_col = "validated_TB_status",
 
 
 run_deseq_one_celltype <- function(
@@ -215,8 +185,8 @@ run_deseq_one_celltype <- function(
   )
   
   # gene filter
-  #dds <- dds[rowSums(DESeq2::counts(dds) >= 10) >= 10, ]
-  dds <- dds[rowSums(DESeq2::counts(dds) >= 10) >= 70, ]
+  dds <- dds[rowSums(DESeq2::counts(dds) >= 10) >= 10, ]
+  #dds <- dds[rowSums(DESeq2::counts(dds) >= 1000) >= 10, ]
   dds <- DESeq2::DESeq(dds)
   
   res <- DESeq2::results(dds, contrast = c(status_col, case_level, ref_level))
@@ -259,10 +229,24 @@ run_deseq_one_celltype <- function(
     mat_z <- t(scale(t(mat)))
     
     ann_col <- as.data.frame(SummarizedExperiment::colData(dds)[, c(status_col, "Gender"), drop = FALSE])
-    ann_col[[status_col]] <- factor(ann_col[[status_col]], levels = c(ref_level, case_level))
-    ann_col$Gender <- factor(ann_col$Gender)
+    ann_col2 <- as.data.frame(SummarizedExperiment::colData(dds)[, c(status_col, "Gender","group"), drop = FALSE])
     
-    # clustered columns
+    ann_col[[status_col]] <- factor(ann_col[[status_col]], levels = c(ref_level, case_level))
+    #ann_col2[[status_col]] <- factor(ann_col[[status_col2]], levels = c(ref_level, case_level))
+    
+    ann_col$Gender <- factor(ann_col$Gender)
+    #ann_col2$group <- factor(ann_col2$group)
+    # rename column for legend title
+    colnames(ann_col)[colnames(ann_col) == "validated_TB_status"] <- "TB Status"
+     
+    # relabel factor levels for legend entries
+    ann_col[["TB Status"]] <- factor(
+      ann_col[["TB Status"]],
+      levels = c("ctrl", "2weekCase"),
+      labels = c("Controls", "Cases")
+    )
+    
+    #clustered columns
     pheatmap::pheatmap(
       mat_z,
       cluster_rows = TRUE,
@@ -273,38 +257,73 @@ run_deseq_one_celltype <- function(
       main = paste0("Top ", top_n, " DE genes (", celltype, ")"),
       filename = file.path(outdir, paste0("Heatmap_clustered_", safe_ct, ".png"))
     )
+    # clustered columns
+    #  pheatmap::pheatmap(
+    #   mat_z,
+    #   cluster_rows = TRUE,
+    #   cluster_cols = TRUE,
+    #   annotation_col = ann_col2,
+    #   show_colnames = FALSE,
+    #   fontsize_row = 8,
+    #   main = paste0("Top ", top_n, " DE genes batch only correction (", celltype, ")"),
+    #   filename = file.path(outdir, paste0("Heatmap_clustered_batch_no_correct", safe_ct, ".png"))
+    # )
     
     # ordered by status
-    ord <- order(ann_col[[status_col]])
-    mat_z2 <- mat_z[, ord, drop = FALSE]
-    ann2 <- ann_col[ord, , drop = FALSE]
+    #ord <- order(ann_col[[status_col]])
+    #mat_z2 <- mat_z[, ord, drop = FALSE]
+    #ann2 <- ann_col[ord, , drop = FALSE]
     
-    pheatmap::pheatmap(
-      mat_z2,
-      cluster_rows = TRUE,
-      cluster_cols = FALSE,
-      annotation_col = ann2,
-      show_colnames = FALSE,
-      fontsize_row = 8,
-      main = paste0("Top ", top_n, " DE genes (", celltype, ") — ordered by status"),
-      filename = file.path(outdir, paste0("Heatmap_byStatus_", safe_ct, ".png"))
-    )
+    # pheatmap::pheatmap(
+    #   mat_z2,
+    #   cluster_rows = TRUE,
+    #   cluster_cols = FALSE,
+    #   annotation_col = ann2,
+    #   show_colnames = FALSE,
+    #   fontsize_row = 8,
+    #   main = paste0("Top ", top_n, " DE genes (", celltype, ") — ordered by status"),
+    #   filename = file.path(outdir, paste0("Heatmap_byStatus_", safe_ct, ".png"))
+    #)
   } else {
     message("Skipping heatmaps for ", celltype, ": too few valid genes for a heatmap.")
   }
-  
+
   # return objects
   list(dds = dds, res = res, res_ordered = res_ordered, resLFC = resLFC)
 }
 
 
+
 res_global <- run_deseq_one_celltype(
   counts = pb_all_cells,
-  celltype = "Global_PBMC", #label
+  celltype = "Global_PBMC_filt_1000_in_10", #label
   donor_meta = donor_meta,
   outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/deseq_global_20pcs_strict10_70"
 )
 
+make_rank <- function(res_df, rank_col = "stat") {
+  # res_df: data.frame with rownames = genes
+  stopifnot(rank_col %in% colnames(res_df))
+  
+  ranks <- res_df[[rank_col]]
+  names(ranks) <- rownames(res_df)
+  
+  # remove NA / infinite
+  ranks <- ranks[is.finite(ranks)]
+  
+  # if duplicated gene names exist, keep the one with largest |rank|
+  if (any(duplicated(names(ranks)))) {
+    ranks <- tibble(gene = names(ranks), rank = as.numeric(ranks)) %>%
+      group_by(gene) %>%
+      slice_max(order_by = abs(rank), n = 1, with_ties = FALSE) %>%
+      ungroup()
+    ranks <- ranks$rank
+    names(ranks) <- ranks$gene
+  }
+  
+  # sort decreasing for fgsea
+  sort(ranks, decreasing = TRUE)
+}
 library(fgsea)
 library(msigdbr)
 library(dplyr)
@@ -346,26 +365,95 @@ write.csv(fg_global, "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/result
 #     neglog10_fdr = -log10(padj + 1e-300),
 #     pathway = factor(pathway, levels = rev(top_pathways_global))
 #   )
+ 
 
+fg_global2 <- fg_global %>%
+  mutate(
+    pathway = pathway %>%
+      str_remove("^HALLMARK_") %>%
+      str_replace_all("_", " ") %>%
+      str_to_lower() %>%
+      str_replace("^\\w+", ~ str_to_title(.x))
+  )
 
-top_df_global <- fg_global %>%
+library(dplyr)
+library(stringr)
+library(forcats)
+
+top_df_global <- fg_global2 %>%
   filter(!is.na(padj)) %>%
   arrange(padj) %>%
   slice_head(n = 30) %>%
-  mutate(pathway = factor(pathway, levels = rev(pathway)))
+  mutate(
+    pathway = pathway %>%
+      str_remove("^HALLMARK_") %>%
+      str_replace_all("_", " ") %>%
+      str_to_lower() %>%
+      str_replace("^\\w+", ~ str_to_title(.x)) %>%
+      str_wrap(width = 32),
+    
+    sig = case_when(
+      padj < 0.001 ~ "***",
+      padj < 0.01  ~ "**",
+      padj < 0.05  ~ "*",
+      TRUE         ~ ""
+    ),
+    
+    # order bars by NES (so with coord_flip, highest NES ends up at the top)
+    pathway = fct_reorder(pathway, NES)
+  )
 
-gsea_global2 <- ggplot(top_df, aes(x = pathway, y = NES)) +
-  geom_col() +
-  coord_flip() +
-  theme_bw(base_size = 11) +
-  labs(title = "Top GSEA pathways (Global PBMC pseudobulk)", x = NULL, y = "NES")
 
-gsea_global2
+top_df_global <- top_df_global %>%
+  mutate(pathway = recode(pathway,
+                          "Epithelial mesenchymal\ntransition" = "EMT"
+  ))
+
+
+ 
+gsea_global <- ggplot(top_df_global, aes(x = pathway, y = NES)) +
+  geom_col(width = 0.75) +
+  geom_hline(yintercept = 0, linewidth = 0.6) +
+  coord_flip(clip = "off") +
+  # optional: label significance at end of bars
+  geom_text(
+    aes(label = sig, y = NES + ifelse(NES >= 0, 0.08, -0.08)),
+    size = 7
+  ) +
+  labs(
+    title = "Gene Set Enrichment (Global PBMC)",
+    subtitle = "NES with FDR significance (* <0.05, ** <0.01, *** <0.001)",
+    x = NULL,
+    y = "Normalized Enrichment Score (NES)"
+  ) +
+  theme_classic(base_size = 22) +
+  theme(
+    plot.title = element_text(face = "bold", size = 28),
+    plot.subtitle = element_text(size = 18),
+    axis.title.y = element_text(size = 22),
+    axis.title.x = element_text(size = 22),
+    axis.text.y  = element_text(size = 25),
+    axis.text.x  = element_text(size = 20),
+    plot.margin  = margin(10, 40, 10, 10)
+  ) +
+  theme(
+    axis.title.y = element_text(face = "bold"),
+    axis.text.y  = element_text(face = "bold")
+  )
+
+
+
+gsea_global
+
+
+
+
+
 
 ggsave(
-  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_global_hallmarkonly.png",
-  plot = gsea_global2,
-  width = 12, height = 8, units = "in", dpi = 300
+  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_global_DEM.png",
+  plot = gsea_global,
+  width = 16, height = 12, units = "in", dpi = 300
 )
 
 

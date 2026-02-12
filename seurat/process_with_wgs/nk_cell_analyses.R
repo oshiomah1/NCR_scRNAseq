@@ -19,7 +19,7 @@ obj <- readRDS(rds_path)
 meta <- obj@meta.data
   
   
-  # 
+
 
  
 
@@ -46,7 +46,7 @@ reduction_use <- if ("harmony" %in% Reductions(nk)) "harmony" else "pca"
 reduction_use
 
 # Pick dims (you used pca35; 1:35 is a reasonable default)
-dims_use <- 1:35
+dims_use <- 1:20
 
 nk <- FindNeighbors(nk, reduction = reduction_use, dims = dims_use)
 nk <- FindClusters(nk, resolution = 0.6)   # try 0.3–1.0 if you want

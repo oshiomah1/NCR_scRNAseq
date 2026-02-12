@@ -150,31 +150,30 @@ adt_pb_NK <- pseudobulk_adt(seur_obj, "NK cells")
 
 
 ###pseudobluk function made more flexible(new)
+p[p]
 pseudobulk_rna_by_meta <- function(
     obj,
-    meta_col= "celltype_simplified",
+    meta_col = "celltype_simplified",
     meta_value,
     donor_col = "NCR.ID"
 ) {
-  
   stopifnot(meta_col %in% colnames(obj@meta.data))
+  stopifnot(donor_col %in% colnames(obj@meta.data))
   
-  cells_use <- WhichCells(
-    obj,
-    expression = .data[[meta_col]] == meta_value
-  )
+  cells_use <- rownames(obj@meta.data)[obj@meta.data[[meta_col]] == meta_value]
   
   if (length(cells_use) == 0) {
     stop("No cells found for ", meta_col, " = ", meta_value)
   }
   
-  counts <- GetAssayData(
-    obj,
-    assay = "RNA",
-    layer = "counts"
-  )[, cells_use, drop = FALSE]
+  counts <- GetAssayData(obj, assay = "RNA", layer = "counts")[, cells_use, drop = FALSE]
   
-  donors <- factor(obj@meta.data[cells_use, donor_col])
+  donors <- obj@meta.data[cells_use, donor_col]
+  keep <- !is.na(donors)
+  if (!any(keep)) stop("All donors are NA for ", meta_value)
+  
+  counts <- counts[, keep, drop = FALSE]
+  donors <- factor(donors[keep])
   
   donor_mm <- Matrix::sparse.model.matrix(~ donors - 1)
   colnames(donor_mm) <- levels(donors)
@@ -182,7 +181,7 @@ pseudobulk_rna_by_meta <- function(
   counts %*% donor_mm
 }
 
-
+pp
 # restrict donors per group before DE
 min_cells <- 50
 
@@ -205,30 +204,26 @@ donor_meta <- seur_obj@meta.data %>%
   ) %>%
   distinct()
 
-donor_meta2 <- seur_obj@meta.data %>%
-  select(
-    NCR.ID,
-    donor_id,
-    validated_TB_status,
-    Age.,
-    Gender,
-    group
-  ) %>%
-  distinct()
+ 
 
 
-# Replace 'cell_type' with the actual metadata column name in your Seurat object
-unique_cell_types <- unique(meta$celltype_simplified)
+unique_cell_types <- sort(unique(obj_filt$celltype_simplified))
+unique_cell_types <- unique_cell_types[!is.na(unique_cell_types)]
 
 #now automate the functions across all cell types
+pseudobulk_rna_results <- setNames(
+  lapply(unique_cell_types, function(ct) {
+    pseudobulk_rna_by_meta(
+      obj_filt,
+      meta_col = "celltype_simplified",
+      meta_value = ct,
+      donor_col = "NCR.ID"
+    )
+  }),
+  unique_cell_types
+)
 
-# RNA pseudobulk
-pseudobulk_rna_results <- lapply(unique_cell_types, function(ct) {
-  pseudobulk_rna(seur_obj, ct)
-})
 
-
-names(pseudobulk_rna_results) <- unique_cell_types
 
 # ADT pseudobulk
 pseudobulk_adt_results <- lapply(unique_cell_types, function(ct) {
@@ -358,158 +353,149 @@ library(DESeq2)
 library(EnhancedVolcano)
 library(pheatmap)
 
-run_deseq_one_celltype <- function(
-    counts,
-    celltype,
-    donor_meta,
-    status_col = "validated_TB_status",
-    ref_level = "ctrl",
-    case_level = "2weekCase",
-    design_formula = ~ Age_c + Gender + group + validated_TB_status,
-    min_donors_per_group = 2,
-    top_n = 50,
-    outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/deseq_20pcs"
-) {
-  dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
-  
-  # ---- coldata aligned to count columns ----
-  coldata <- donor_meta[donor_meta$NCR.ID %in% colnames(counts), ]
-  rownames(coldata) <- coldata$NCR.ID
-  coldata <- coldata[colnames(counts), , drop = FALSE]
-  
-  if (!all(rownames(coldata) == colnames(counts))) {
-    stop("Donor metadata not aligned for celltype: ", celltype)
-  }
-  
-  # covariates
-  coldata$Gender <- factor(coldata$Gender)
-  coldata$group <- factor(coldata$group)
-  coldata[[status_col]] <- factor(coldata[[status_col]])
-  coldata$Age_c <- scale(coldata$Age., center = TRUE, scale = FALSE)
-  
-  # set reference level
-  coldata[[status_col]] <- relevel(coldata[[status_col]], ref = ref_level)
-  
-  # check group sizes
-  tab <- table(coldata[[status_col]])
-  if (!(case_level %in% names(tab)) || !(ref_level %in% names(tab))) {
-    message("Skipping ", celltype, ": missing case or ref level in this cell type.")
-    return(NULL)
-  }
-  if (tab[[case_level]] < min_donors_per_group || tab[[ref_level]] < min_donors_per_group) {
-    message("Skipping ", celltype, ": too few donors per group (",
-            case_level, "=", tab[[case_level]], ", ",
-            ref_level, "=", tab[[ref_level]], ").")
-    return(NULL)
-  }
-  
-  # Ensure integer matrix for DESeq2
-  counts_mat <- as.matrix(counts)
-  storage.mode(counts_mat) <- "numeric"
-  counts_mat <- round(counts_mat)
-  storage.mode(counts_mat) <- "integer"
-  
-  # ---- DESeq2 ----
-  dds <- DESeqDataSetFromMatrix(
-    countData = counts_mat,
-    colData = coldata,
-    design = design_formula
-  )
-  
-  dds <- dds[rowSums(counts(dds) >= 10) >= 10, ]
-  dds <- DESeq(dds)
-  
-  res <- results(dds, contrast = c(status_col, case_level, ref_level))
-  res_ordered <- res[order(res$padj), ]
-  
-  # shrink LFC for the status effect
-  coef_name <- grep(paste0("^", status_col), resultsNames(dds), value = TRUE)[1]
-  resLFC <- lfcShrink(dds, coef = coef_name, type = "apeglm")
-  
-  # combine: padj from res, shrunken LFC from resLFC
-  plot_df <- as.data.frame(res)
-  plot_df$log2FoldChange <- resLFC$log2FoldChange
-  
-  # ---- Save tables ----
-  safe_ct <- gsub("[^A-Za-z0-9_]+", "_", celltype)
-  
-  write.csv(
-    as.data.frame(res_ordered),
-    file = file.path(outdir, paste0("DESeq2_", safe_ct, "_res_ordered.csv"))
-  )
-  write.csv(
-    as.data.frame(plot_df),
-    file = file.path(outdir, paste0("DESeq2_", safe_ct, "_res_with_shrunkLFC.csv"))
-  )
-  
-  # ---- Volcano ----
-  png(file.path(outdir, paste0("Volcano_", safe_ct, ".png")), width = 1400, height = 900, res = 150)
-  print(
-    EnhancedVolcano(plot_df,
-                    lab = rownames(plot_df),
-                    x = "log2FoldChange",
-                    y = "padj",
-                    title = paste0(celltype, " (", case_level, " vs ", ref_level, ")")
-    )
-  )
-  dev.off()
-  
-  # ---- Heatmaps ----
-  # top genes by padj
-  top_genes <- rownames(head(res_ordered[!is.na(res_ordered$padj), ], top_n))
-  
-  vsd <- vst(dds, blind = FALSE)
-  mat <- assay(vsd)[top_genes, , drop = FALSE]
-  mat_z <- t(scale(t(mat)))
-  
-  ann_col <- as.data.frame(colData(dds)[, c(status_col, "Gender"), drop = FALSE])
-  ann_col[[status_col]] <- factor(ann_col[[status_col]], levels = c(ref_level, case_level))
-  ann_col$Gender <- factor(ann_col$Gender)
-  
-  # clustered columns
-  png(file.path(outdir, paste0("Heatmap_clustered_", safe_ct, ".png")), width = 1800, height = 900, res = 150)
-  pheatmap(
-    mat_z,
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
-    annotation_col = ann_col,
-    show_colnames = FALSE,
-    fontsize_row = 8,
-    main = paste0("Top ", top_n, " DE genes (", celltype, ")")
-  )
-  dev.off()
-  
-  # ordered by TB status
-  ord <- order(ann_col[[status_col]])
-  mat_z2 <- mat_z[, ord, drop = FALSE]
-  ann2 <- ann_col[ord, , drop = FALSE]
-  
-  png(file.path(outdir, paste0("Heatmap_byStatus_", safe_ct, ".png")), width = 1800, height = 900, res = 150)
-  pheatmap(
-    mat_z2,
-    cluster_rows = TRUE,
-    cluster_cols = FALSE,
-    annotation_col = ann2,
-    show_colnames = FALSE,
-    fontsize_row = 8,
-    main = paste0("Top ", top_n, " DE genes (", celltype, ") — ordered by status")
-  )
-  dev.off()
-  
-  # return objects if you want to inspect in-session
-  list(dds = dds, res = res, res_ordered = res_ordered, resLFC = resLFC)
-}
-
-# all_results <- lapply(names(pseudobulk_rna_results), function(ct) {
-#   run_deseq_one_celltype(
-#     counts = pseudobulk_rna_results[[ct]],
-#     celltype = ct,
-#     donor_meta = donor_meta,
-#     outdir = "DESeq2_pseudobulk_by_celltype",
+# run_deseq_one_celltype <- function(
+#     counts,
+#     celltype,
+#     donor_meta,
+#     status_col = "validated_TB_status",
+#     ref_level = "ctrl",
+#     case_level = "2weekCase",
+#     design_formula = ~ Age_c + Gender + group + validated_TB_status,
+#     min_donors_per_group = 2,
 #     top_n = 50,
-#     min_donors_per_group = 2
+#     outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/deseq_20pcs"
+# ) {
+#   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
+#   
+#   # ---- coldata aligned to count columns ----
+#   coldata <- donor_meta[donor_meta$NCR.ID %in% colnames(counts), ]
+#   rownames(coldata) <- coldata$NCR.ID
+#   coldata <- coldata[colnames(counts), , drop = FALSE]
+#   
+#   if (!all(rownames(coldata) == colnames(counts))) {
+#     stop("Donor metadata not aligned for celltype: ", celltype)
+#   }
+#   
+#   # covariates
+#   coldata$Gender <- factor(coldata$Gender)
+#   coldata$group <- factor(coldata$group)
+#   coldata[[status_col]] <- factor(coldata[[status_col]])
+#   coldata$Age_c <- scale(coldata$Age., center = TRUE, scale = FALSE)
+#   
+#   # set reference level
+#   coldata[[status_col]] <- relevel(coldata[[status_col]], ref = ref_level)
+#   
+#   # check group sizes
+#   tab <- table(coldata[[status_col]])
+#   if (!(case_level %in% names(tab)) || !(ref_level %in% names(tab))) {
+#     message("Skipping ", celltype, ": missing case or ref level in this cell type.")
+#     return(NULL)
+#   }
+#   if (tab[[case_level]] < min_donors_per_group || tab[[ref_level]] < min_donors_per_group) {
+#     message("Skipping ", celltype, ": too few donors per group (",
+#             case_level, "=", tab[[case_level]], ", ",
+#             ref_level, "=", tab[[ref_level]], ").")
+#     return(NULL)
+#   }
+#   
+#   # Ensure integer matrix for DESeq2
+#   counts_mat <- as.matrix(counts)
+#   storage.mode(counts_mat) <- "numeric"
+#   counts_mat <- round(counts_mat)
+#   storage.mode(counts_mat) <- "integer"
+#   
+#   # ---- DESeq2 ----
+#   dds <- DESeqDataSetFromMatrix(
+#     countData = counts_mat,
+#     colData = coldata,
+#     design = design_formula
 #   )
-# })
+#   
+#   dds <- dds[rowSums(counts(dds) >= 10) >= 10, ]
+#   dds <- DESeq(dds)
+#   
+#   res <- results(dds, contrast = c(status_col, case_level, ref_level))
+#   res_ordered <- res[order(res$padj), ]
+#   
+#   # shrink LFC for the status effect
+#   coef_name <- grep(paste0("^", status_col), resultsNames(dds), value = TRUE)[1]
+#   resLFC <- lfcShrink(dds, coef = coef_name, type = "apeglm")
+#   
+#   # combine: padj from res, shrunken LFC from resLFC
+#   plot_df <- as.data.frame(res)
+#   plot_df$log2FoldChange <- resLFC$log2FoldChange
+#   
+#   # ---- Save tables ----
+#   safe_ct <- gsub("[^A-Za-z0-9_]+", "_", celltype)
+#   
+#   write.csv(
+#     as.data.frame(res_ordered),
+#     file = file.path(outdir, paste0("DESeq2_", safe_ct, "_res_ordered.csv"))
+#   )
+#   write.csv(
+#     as.data.frame(plot_df),
+#     file = file.path(outdir, paste0("DESeq2_", safe_ct, "_res_with_shrunkLFC.csv"))
+#   )
+#   
+#   # ---- Volcano ----
+#   png(file.path(outdir, paste0("Volcano_", safe_ct, ".png")), width = 1400, height = 900, res = 150)
+#   print(
+#     EnhancedVolcano(plot_df,
+#                     lab = rownames(plot_df),
+#                     x = "log2FoldChange",
+#                     y = "padj",
+#                     title = paste0(celltype, " (", case_level, " vs ", ref_level, ")")
+#     )
+#   )
+#   dev.off()
+#   
+#   # ---- Heatmaps ----
+#   # top genes by padj
+#   top_genes <- rownames(head(res_ordered[!is.na(res_ordered$padj), ], top_n))
+#   
+#   vsd <- vst(dds, blind = FALSE)
+#   mat <- assay(vsd)[top_genes, , drop = FALSE]
+#   mat_z <- t(scale(t(mat)))
+#   
+#   ann_col <- as.data.frame(colData(dds)[, c(status_col, "Gender"), drop = FALSE])
+#   ann_col[[status_col]] <- factor(ann_col[[status_col]], levels = c(ref_level, case_level))
+#   ann_col$Gender <- factor(ann_col$Gender)
+#   
+#   # clustered columns
+#   png(file.path(outdir, paste0("Heatmap_clustered_", safe_ct, ".png")), width = 1800, height = 900, res = 150)
+#   pheatmap(
+#     mat_z,
+#     cluster_rows = TRUE,
+#     cluster_cols = TRUE,
+#     annotation_col = ann_col,
+#     show_colnames = FALSE,
+#     fontsize_row = 8,
+#     main = paste0("Top ", top_n, " DE genes (", celltype, ")")
+#   )
+#   dev.off()
+#   
+#   # ordered by TB status
+#   ord <- order(ann_col[[status_col]])
+#   mat_z2 <- mat_z[, ord, drop = FALSE]
+#   ann2 <- ann_col[ord, , drop = FALSE]
+#   
+#   png(file.path(outdir, paste0("Heatmap_byStatus_", safe_ct, ".png")), width = 1800, height = 900, res = 150)
+#   pheatmap(
+#     mat_z2,
+#     cluster_rows = TRUE,
+#     cluster_cols = FALSE,
+#     annotation_col = ann2,
+#     show_colnames = FALSE,
+#     fontsize_row = 8,
+#     main = paste0("Top ", top_n, " DE genes (", celltype, ") — ordered by status")
+#   )
+#   dev.off()
+#   
+#   # return objects if you want to inspect in-session
+#   list(dds = dds, res = res, res_ordered = res_ordered, resLFC = resLFC)
+# }
+
+ 
 library(future)
 library(future.apply)
 
@@ -521,46 +507,174 @@ plan(multisession, workers = n_workers)   # or plan(multicore) on Linux if allow
 ct_vector = c("NKT-like","CD8 T cells","NK cells","CD4 T cells", "ISG-high" )               
  
 
-all_results <- future_lapply(names(pseudobulk_rna_results), function(ct) {
-  run_deseq_one_celltype(
-    counts = pseudobulk_rna_results[[unique_cell_types]],
-    celltype = unique_cell_types,
-    donor_meta = donor_meta,
-    outdir = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/DESeq2_pseudobulk_by_celltypepc20",
-    top_n = 50,
-    min_donors_per_group = 2
-  )
-}, future.seed = TRUE)
-
-all_results <- future_lapply(names(pseudobulk_rna_results), function(ct) {
-  run_deseq_one_celltype(
-    counts     = pseudobulk_rna_results[[ct]],
-    celltype   = ct,
-    donor_meta = donor_meta,
-    outdir     = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/DESeq2_pseudobulk_by_celltypepc20",
-    top_n      = 50,
-    min_donors_per_group = 2
-  )
-}, future.seed = TRUE)
-
-names(all_results) <- names(pseudobulk_rna_results)
-
-
-
-#be careful here there is an eerror , te code mkes the plots though
-#names(all_results) <- names(pseudobulk_rna_results)
-#names(all_results) <-ct_vector
-# optional: clean up
-plan(sequential)
+ 
+ 
 
  
-# keep only successful ones
-all_results <- all_results[!sapply(all_results, is.null)]
-length(all_results)
+
+
+all_results <- vector("list", length(pseudobulk_rna_results))
+names(all_results) <- names(pseudobulk_rna_results)
+
+outdir_base <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/DESeq2_pseudobulk_by_celltypepc20new"
+dir.create(outdir_base, showWarnings = FALSE, recursive = TRUE)
+
+for (ct in names(pseudobulk_rna_results)) {
+  
+  message("Running DESeq2 for: ", ct)
+  
+  all_results[[ct]] <- tryCatch(
+    run_deseq_one_celltype(
+      counts     = pseudobulk_rna_results[[ct]],
+      celltype   = ct,
+      donor_meta = donor_meta,
+      outdir     = outdir_base,
+      top_n      = 50,
+      min_donors_per_group = 2,
+      design_formula = ~ group + validated_TB_status
+    ),
+    error = function(e) {
+      message("FAILED for ", ct, ": ", conditionMessage(e))
+      NULL
+    }
+  )
+}
+
+# quick summary of what ran vs skipped/failed
+table(sapply(all_results, is.null))
+
+ 
+
+##############################
+#gseanew
+library(dplyr)
+library(stringr)
+library(forcats)
+library(ggplot2)
+library(msigdbr)
+library(fgsea)
+
+## 0) Hallmark pathways once
+hallmark <- msigdbr(species = "Homo sapiens", category = "H") %>%
+  select(gs_name, gene_symbol)
+pathways <- split(hallmark$gene_symbol, hallmark$gs_name)
+
+## 1) Output folder
+gsea_outdir <- "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_by_celltypepc20new"
+dir.create(gsea_outdir, showWarnings = FALSE, recursive = TRUE)
+
+## 2) Helper: clean pathway names (do this once here)
+clean_pathway <- function(x, wrap_width = 32) {
+  x %>%
+    str_remove("^HALLMARK_") %>%
+    str_replace_all("_", " ") %>%
+    str_to_lower() %>%
+    str_replace("^\\w+", ~ str_to_title(.x)) %>%
+    str_wrap(width = wrap_width)
+}
+
+## 3) Run GSEA for every cell type in all_results
+gsea_results <- vector("list", length(all_results))
+names(gsea_results) <- names(all_results)
+
+gsea_plots <- vector("list", length(all_results))
+names(gsea_plots) <- names(all_results)
+
+for (ct in names(all_results)) {
+  res_obj <- all_results[[ct]]
+  if (is.null(res_obj)) next
+  
+  message("GSEA: ", ct)
+  
+  ## ranks from DESeq2 stat
+  res_df <- as.data.frame(res_obj$res)
+  ranks <- res_df$stat
+  names(ranks) <- rownames(res_df)
+  ranks <- ranks[!is.na(ranks)]
+  ranks <- sort(ranks, decreasing = TRUE)
+  
+  ## fgsea
+  fg <- fgsea(pathways = pathways, stats = ranks, minSize = 15, maxSize = 500)
+  fg <- fg %>% arrange(padj)
+  
+  ## save per cell type
+  safe_ct <- gsub("[^A-Za-z0-9_]+", "_", ct)
+  outdir_ct <- file.path(gsea_outdir, safe_ct)
+  dir.create(outdir_ct, showWarnings = FALSE, recursive = TRUE)
+  
+  saveRDS(fg, file.path(outdir_ct, paste0("GSEA_", safe_ct, "_hallmark.rds")))
+  #write.csv(fg, file.path(outdir_ct, paste0("GSEA_", safe_ct, "_hallmark.csv")), row.names = FALSE)
+  
+  ## make PPT-ready top plot
+  top_df <- fg %>%
+    filter(!is.na(padj)) %>%
+    slice_head(n = 30) %>%
+    mutate(
+      pathway = clean_pathway(pathway, wrap_width = 32),
+      pathway = recode(pathway, "Epithelial mesenchymal\ntransition" = "EMT"),
+      sig = case_when(
+        padj < 0.001 ~ "***",
+        padj < 0.01  ~ "**",
+        padj < 0.05  ~ "*",
+        TRUE         ~ ""
+      ),
+      pathway = fct_reorder(pathway, NES)
+    )
+  
+  p <- ggplot(top_df, aes(x = pathway, y = NES)) +
+    geom_col(width = 0.75) +
+    geom_hline(yintercept = 0, linewidth = 0.6) +
+    coord_flip(clip = "off") +
+    geom_text(aes(label = sig, y = NES + ifelse(NES >= 0, 0.08, -0.08)), size = 7) +
+    labs(
+      title = paste0("Gene Set Enrichment (", ct, ")"),
+      subtitle = "NES with FDR significance (* <0.05, ** <0.01, *** <0.001)",
+      x = NULL,
+      y = "Normalized Enrichment Score (NES)"
+    ) +
+    theme_classic(base_size = 22) +
+    theme(
+      plot.title = element_text(face = "bold", size = 28),
+      plot.subtitle = element_text(size = 18),
+      axis.title.y = element_text(size = 22, face = "bold"),
+      axis.title.x = element_text(size = 22),
+      axis.text.y  = element_text(size = 18, face = "bold"),
+      axis.text.x  = element_text(size = 20),
+      plot.margin  = margin(10, 40, 10, 10)
+    )
+  
+  ggsave(file.path(outdir_ct, paste0("GSEA_bar_", safe_ct, ".png")),
+         p, width = 20, height = 17, dpi = 300)
+  
+  gsea_results[[ct]] <- fg
+  gsea_plots[[ct]] <- p
+}
+
+## 4) Optional: one combined table across cell types
+gsea_combined <- bind_rows(
+  lapply(names(gsea_results), function(ct) {
+    if (is.null(gsea_results[[ct]])) return(NULL)
+    mutate(gsea_results[[ct]], celltype = ct)
+  })
+)
+
+write.csv(gsea_combined,
+          file.path(gsea_outdir, "GSEA_all_celltypes_hallmark.csv"),
+          row.names = FALSE)
 
 
 
 
+
+
+
+
+
+
+
+
+
+delte belows
 ##############
 #GSEA
 ############
@@ -577,124 +691,125 @@ library(purrr)
 library(ggplot2)
 library(stringr)
 
-# Gene sets: Hallmark
-hallmark <- msigdbr(species = "Homo sapiens", category = "H") %>%
-  select(gs_name, gene_symbol)
-
-pathways_h <- split(hallmark$gene_symbol, hallmark$gs_name)
-
-# Gene sets: Reactome (MSigDB C2:CP:REACTOME)
-reactome <- msigdbr(species = "Homo sapiens", category = "C2", subcategory = "CP:REACTOME") %>%
-  select(gs_name, gene_symbol)
-
-pathways_react <- split(reactome$gene_symbol, reactome$gs_name)
-
-# OptionA : use only Hallmark first (2 B faster)
-pathways <- pathways_h
-#pathways <- c(pathways_h, pathways_react)
-
-
-# Helper: build a ranked vector + run fgsea
-#Best practice: rank by Wald statistic from DESeq2 (directional + stable).deduplicate genes if needed and drop NAs.
-
-make_rank <- function(res_df, rank_col = "stat") {
-  # res_df: data.frame with rownames = genes
-  stopifnot(rank_col %in% colnames(res_df))
-  
-  ranks <- res_df[[rank_col]]
-  names(ranks) <- rownames(res_df)
-  
-  # remove NA / infinite
-  ranks <- ranks[is.finite(ranks)]
-  
-  # if duplicated gene names exist, keep the one with largest |rank|
-  if (any(duplicated(names(ranks)))) {
-    ranks <- tibble(gene = names(ranks), rank = as.numeric(ranks)) %>%
-      group_by(gene) %>%
-      slice_max(order_by = abs(rank), n = 1, with_ties = FALSE) %>%
-      ungroup()
-    ranks <- ranks$rank
-    names(ranks) <- ranks$gene
-  }
-  
-  # sort decreasing for fgsea
-  sort(ranks, decreasing = TRUE)
-}
-# Run GSEA across all cell types in all_results
-run_fgsea_one <- function(ranks, pathways, minSize = 15, maxSize = 500) {
-  fgseaMultilevel(
-    pathways = pathways,
-    stats    = ranks,
-    minSize  = minSize,
-    maxSize  = maxSize
-  ) %>%
-    as_tibble() %>%
-    arrange(padj, desc(abs(NES)))
-}
-
-gsea_results <- imap(all_results, function(obj, ct) {
-  res_df <- as.data.frame(obj$res)
-  
-  # DESeq2 results object -> data.frame keeps rownames as genes
-  # Ensure 'stat' exists (it should)
-  if (!("stat" %in% colnames(res_df))) {
-    message("Skipping ", ct, ": no 'stat' column found.")
-    return(NULL)
-  }
-  
-  ranks <- make_rank(res_df, rank_col = "stat")
-  
-  fg <- run_fgsea_one(ranks, pathways = pathways, minSize = 15, maxSize = 500) %>%
-    mutate(celltype = ct)
-  
-  fg
-})
-
-gsea_results <- gsea_results[!sapply(gsea_results, is.null)]
-gsea_all <- bind_rows(gsea_results)
-
-# Save long table
-#dir.create("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results", showWarnings = FALSE, recursive = TRUE)
-saveRDS(gsea_all, "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_all_celltypes_Hallmark_Reactome.csv")
-
-# Make a pathway × cell type dot-plot (NES + FDR)
-
-# Choose top pathways overall (by best padj across any cell type)
-top_pathways <- gsea_all %>%
-  filter(!is.na(padj)) %>%
-  group_by(pathway) %>%
-  summarise(best_padj = min(padj), .groups = "drop") %>%
-  arrange(best_padj) %>%
-  slice_head(n = 30) %>%
-  pull(pathway)
-
-plot_df <- gsea_all %>%
-  filter(pathway %in% top_pathways) %>%
-  mutate(
-    neglog10_fdr = -log10(padj + 1e-300),
-    pathway = factor(pathway, levels = rev(top_pathways))
-  )
-#Make a pathway × cell type dot-plot (NES + FDR)
-nesfdr = ggplot(plot_df, aes(x = celltype, y = pathway)) +
-  geom_point(aes(size = neglog10_fdr, color = NES)) +
-  theme_bw(base_size = 11) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    panel.grid.major = element_line(linewidth = 0.2)
-  ) +
-  labs(
-    title = "GSEA across cell types (Hallmark + Reactome)",
-    x = "Cell type",
-    y = NULL,
-    size = "-log10(FDR)",
-    color = "NES"
-  )
-ggsave(
-  filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_dotplot_NES_FDR_hallmarkonlypc20.png",
-  plot = nesfdr,
-  width = 12, height = 8, units = "in", dpi = 300
-)
-
+# # Gene sets: Hallmark
+# hallmark <- msigdbr(species = "Homo sapiens", category = "H") %>%
+#   select(gs_name, gene_symbol)
+# 
+# pathways_h <- split(hallmark$gene_symbol, hallmark$gs_name)
+# 
+# # Gene sets: Reactome (MSigDB C2:CP:REACTOME)
+# reactome <- msigdbr(species = "Homo sapiens", category = "C2", subcategory = "CP:REACTOME") %>%
+#   select(gs_name, gene_symbol)
+# 
+# pathways_react <- split(reactome$gene_symbol, reactome$gs_name)
+# 
+# # OptionA : use only Hallmark first (2 B faster)
+# pathways <- pathways_h
+# #pathways <- c(pathways_h, pathways_react)
+# 
+# 
+# # Helper: build a ranked vector + run fgsea
+# #Best practice: rank by Wald statistic from DESeq2 (directional + stable).deduplicate genes if needed and drop NAs.
+# 
+# make_rank <- function(res_df, rank_col = "stat") {
+#   # res_df: data.frame with rownames = genes
+#   stopifnot(rank_col %in% colnames(res_df))
+#   
+#   ranks <- res_df[[rank_col]]
+#   names(ranks) <- rownames(res_df)
+#   
+#   # remove NA / infinite
+#   ranks <- ranks[is.finite(ranks)]
+#   
+#   # if duplicated gene names exist, keep the one with largest |rank|
+#   if (any(duplicated(names(ranks)))) {
+#     ranks <- tibble(gene = names(ranks), rank = as.numeric(ranks)) %>%
+#       group_by(gene) %>%
+#       slice_max(order_by = abs(rank), n = 1, with_ties = FALSE) %>%
+#       ungroup()
+#     ranks <- ranks$rank
+#     names(ranks) <- ranks$gene
+#   }
+#   
+#   # sort decreasing for fgsea
+#   sort(ranks, decreasing = TRUE)
+# }
+# # Run GSEA across all cell types in all_results
+# run_fgsea_one <- function(ranks, pathways, minSize = 15, maxSize = 500) {
+#   fgseaMultilevel(
+#     pathways = pathways,
+#     stats    = ranks,
+#     minSize  = minSize,
+#     maxSize  = maxSize
+#   ) %>%
+#     as_tibble() %>%
+#     arrange(padj, desc(abs(NES)))
+# }
+# 
+# gsea_results <- imap(all_results, function(obj, ct) {
+#   res_df <- as.data.frame(obj$res)
+#   
+#   # DESeq2 results object -> data.frame keeps rownames as genes
+#   # Ensure 'stat' exists (it should)
+#   if (!("stat" %in% colnames(res_df))) {
+#     message("Skipping ", ct, ": no 'stat' column found.")
+#     return(NULL)
+#   }
+#   
+#   ranks <- make_rank(res_df, rank_col = "stat")
+#   
+#   fg <- run_fgsea_one(ranks, pathways = pathways, minSize = 15, maxSize = 500) %>%
+#     mutate(celltype = ct)
+#   
+#   fg
+# })
+# 
+# gsea_results <- gsea_results[!sapply(gsea_results, is.null)]
+# gsea_all <- bind_rows(gsea_results)
+# 
+# # Save long table
+# #dir.create("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results", showWarnings = FALSE, recursive = TRUE)
+# saveRDS(gsea_all, "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_all_celltypes_Hallmark_Reactome.csv")
+# gsea_results <-readRDS("/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_all_celltypes_Hallmark_Reactome.csv")
+# 
+# # Make a pathway × cell type dot-plot (NES + FDR)
+# 
+# # Choose top pathways overall (by best padj across any cell type)
+# top_pathways <- gsea_all %>%
+#   filter(!is.na(padj)) %>%
+#   group_by(pathway) %>%
+#   summarise(best_padj = min(padj), .groups = "drop") %>%
+#   arrange(best_padj) %>%
+#   slice_head(n = 30) %>%
+#   pull(pathway)
+# 
+# plot_df <- gsea_all %>%
+#   filter(pathway %in% top_pathways) %>%
+#   mutate(
+#     neglog10_fdr = -log10(padj + 1e-300),
+#     pathway = factor(pathway, levels = rev(top_pathways))
+#   )
+# #Make a pathway × cell type dot-plot (NES + FDR)
+# nesfdr = ggplot(plot_df, aes(x = celltype, y = pathway)) +
+#   geom_point(aes(size = neglog10_fdr, color = NES)) +
+#   theme_bw(base_size = 11) +
+#   theme(
+#     axis.text.x = element_text(angle = 45, hjust = 1),
+#     panel.grid.major = element_line(linewidth = 0.2)
+#   ) +
+#   labs(
+#     title = "GSEA across cell types (Hallmark + Reactome)",
+#     x = "Cell type",
+#     y = NULL,
+#     size = "-log10(FDR)",
+#     color = "NES"
+#   )
+# ggsave(
+#   filename = "/quobyte/bmhenngrp/from-lssc0/projects/NCR_scRNAseq/results/GSEA_results/GSEA_dotplot_NES_FDR_hallmarkonlypc20.png",
+#   plot = nesfdr,
+#   width = 12, height = 8, units = "in", dpi = 300
+# )
+# 
 
  
   
